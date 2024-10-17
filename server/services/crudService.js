@@ -47,22 +47,6 @@ const addDocument = async (Model, data) => {
       throw new Error(`Error deleting document: ${error.message}`);
     }
   };
-
-  const softDeleteDocumentByI1d = async (Model, id) => {
-    try {
-      const document = await Model.findById(id);
-      if (!document) {
-        throw new Error('Document not found');
-      }
-  
-      document.status = 'inactive';
-      document.updated_at = Date.now();
-  
-      return await document.save();
-    } catch (error) {
-      throw new Error(`Error deleting document: ${error.message}`);
-    }
-  };
   
   module.exports = {
     addDocument,
