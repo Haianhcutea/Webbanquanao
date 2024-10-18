@@ -1,136 +1,340 @@
-import React, { useContext } from "react";
-import { Form, Input, Select, Button, Row, Col } from "antd";
-import { UserOutlined, LockOutlined } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react";
+import {
+  Button,
+  Space,
+  Table,
+  Drawer,
+  Form,
+  Row,
+  Col,
+  Input,
+  Select,
+  Popconfirm,
+  Tag,
+} from "antd";
+import { PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+
 import { openNotificationWithIcon, NotificationContext } from "../../App";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setListCategory } from "../../store/categories";
 
-const Register = () => {
+const Categories = () => {
   const api = useContext(NotificationContext);
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const onFinish = async (values) => {
-    console.log("Received values of form: ", values);
+  const [open, setOpen] = useState(false);
+  const [action, setAction] = useState("ADD");
+  const [formCurd] = Form.useForm();
+
+  //
+  const [data, setData] = useState([]);
+
+  const columns = [
+    {
+      title: "ID",
+      dataIndex: "_id",
+      key: "_id",
+      ellipsis: true,
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      ellipsis: true,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      ellipsis: true,
+      filters: [
+        {
+          text: "Active",
+          value: "active",
+        },
+        {
+          text: "InActive",
+          value: "inactive",
+        },
+        {
+          text: "Closed",
+          value: "closed",
+        },
+      ],
+      onFilter: (value, record) => record.status.includes(value),
+      render: (value, record) => {
+        let color = value === "active" ? "green" : "gray";
+        if (value === "closed") {
+          color = "red";
+        }
+        return <Tag color={color}>{value.toUpperCase()}</Tag>;
+      },
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      ellipsis: true,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <span style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => {
+              showDrawer();
+              setAction("UPDATE");
+              formCurd.setFieldsValue(record);
+            }}
+          />
+          <Popconfirm
+            title="Delete the product"
+            description="Are you sure to delete this product?"
+            onConfirm={() => handleDelete(record?._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </span>
+      ),
+    },
+  ];
+  const showDrawer = () => {
+    setOpen(true);
+  };
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  // hàm chạy lần đầu lấy data
+  useEffect(() => {
+    handleGetList();
+  }, []);
+
+  // hàm thêm sửa
+  const handleAddorUpdate = async () => {
+    if (action === "ADD") {
+      formCurd
+        .validateFields()
+        .then(async (values) => {
+          const response = await axios.post(
+            `http://localhost:5555/api/categories/add`,
+            values
+          );
+
+          if (response.status === 201) {
+            openNotificationWithIcon(
+              api,
+              "success",
+              "Add product Successful",
+              "You have successfully added product!"
+            );
+            handleGetList();
+            onClose();
+            formCurd.resetFields();
+          }
+        })
+        .catch((err) => {
+          console.error("Error occurred:", err);
+          openNotificationWithIcon(
+            api,
+            "error",
+            "Add product Failed",
+            "Please check your values."
+          );
+        })
+        .finally(() => {});
+    } else {
+      formCurd
+        .validateFields()
+        .then(async (values) => {
+          const response = await axios.put(
+            `http://localhost:5555/api/categories/update/${values?._id}`,
+            values
+          );
+
+          if (response.status === 200) {
+            openNotificationWithIcon(
+              api,
+              "success",
+              "Update product Successful",
+              "You have successfully updated product!"
+            );
+            handleGetList();
+            onClose();
+            formCurd.resetFields();
+          }
+        })
+        .catch((err) => {
+          console.error("Error occurred:", err);
+          openNotificationWithIcon(
+            api,
+            "error",
+            "Update product Failed",
+            "Please check your values."
+          );
+        })
+        .finally(() => {});
+    }
+  };
+
+  // lấy toàn bộ ds
+  const handleGetList = async () => {
     try {
-      const response = await axios.post(
-        `http://localhost:5555/api/auth/register`,
-        values
-      );
+      const response = await axios.get(`http://localhost:5555/api/categories`);
 
-      if (response.status === 201) {
+      if (response.status === 200) {
+        setData(response.data);
+        // lưu list category vào store
+        dispatch(setListCategory(response.data));
+      }
+    } catch (error) {
+      console.error("Error occurred:", error);
+    } finally {
+    }
+  };
+
+  // hàm xoá
+  const handleDelete = async (id) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:5555/api/categories/delete/${id}`
+      );
+      if (response.status === 200) {
         openNotificationWithIcon(
           api,
           "success",
-          "Register Successful",
-          "You have successfully logged in!"
+          "Delete product Successful",
+          "You have successfully deleted product!"
         );
-        navigate("/login");
+        handleGetList();
       }
     } catch (error) {
+      console.error("Error occurred:", err);
       openNotificationWithIcon(
         api,
         "error",
-        "Register Failed",
-        "Please check your credentials and try again."
+        "Delete product Failed",
+        "Please check your values."
       );
+    } finally {
     }
   };
 
   return (
-    <Row
-      style={{
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-      }}
-    >
-      <Col span={8}>
-        <Form
-          name="normal_Register"
-          className="Register-form"
-          initialValues={{
-            remember: true,
+    <>
+      <Space
+        style={{
+          marginBottom: 16,
+        }}
+      >
+        <Button
+          type="primary"
+          onClick={() => {
+            showDrawer();
+            formCurd.resetFields();
+            setAction("ADD");
           }}
-          onFinish={onFinish}
+          icon={<PlusOutlined />}
         >
-          <Form.Item
-            name="name"
-            rules={[
-              {
-                required: true,
-                message: "Please input your name!",
-              },
-            ]}
-          >
-            <Input
-              prefix={<UserOutlined className="site-form-item-icon" />}
-              placeholder="Name"
-            />
-          </Form.Item>
-          <Form.Item
-            name="email"
-            rules={[
-              {
-                required: true,
-                message: "Please input your email!",
-              },
-            ]}
-          >
-            <Input
-              prefix={<UserOutlined className="site-form-item-icon" />}
-              placeholder="Email"
-            />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            rules={[
-              {
-                required: true,
-                message: "Please input your Password!",
-              },
-            ]}
-          >
-            <Input
-              prefix={<LockOutlined className="site-form-item-icon" />}
-              type="password"
-              placeholder="Password"
-            />
-          </Form.Item>
-          <Form.Item name="role">
-            <Select
-              showSearch
-              placeholder="Select roles"
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              options={[
-                {
-                  value: "admin",
-                  label: "Admin",
-                },
-                {
-                  value: "user",
-                  label: "User",
-                },
-              ]}
-            />
-          </Form.Item>
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="Register-form-button"
-            >
-              Register
+          Add
+        </Button>
+      </Space>
+
+      <Table
+        columns={columns}
+        dataSource={data}
+        scroll={{
+          y: "calc(100vh - 350px)",
+        }}
+      />
+
+      <Drawer
+        title={
+          action === "ADD" ? "Create a new categories" : "Update categories"
+        }
+        width={720}
+        onClose={onClose}
+        open={open}
+        styles={{
+          body: {
+            paddingBottom: 80,
+          },
+        }}
+        extra={
+          <Space>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={() => handleAddorUpdate("ADD")} type="primary">
+              Submit
             </Button>
-            Or <Link to="/login">login now!</Link>
+          </Space>
+        }
+      >
+        <Form layout="vertical" hideRequiredMark form={formCurd}>
+          <Form.Item name="_id" hidden>
+            <Input />
           </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="name"
+                label="Name"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter user name",
+                  },
+                ]}
+              >
+                <Input placeholder="Please enter user name" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="status"
+                label="Status"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select an status",
+                  },
+                ]}
+              >
+                <Select placeholder="Please select a status">
+                  <Select.Option value="active">Active</Select.Option>
+                  <Select.Option value="inactive">InActive</Select.Option>
+                  <Select.Option value="closed">Closed</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                name="description"
+                label="Description"
+                rules={[
+                  {
+                    required: true,
+                    message: "please enter url description",
+                  },
+                ]}
+              >
+                <Input.TextArea
+                  rows={4}
+                  placeholder="please enter url description"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
-      </Col>
-    </Row>
+      </Drawer>
+    </>
   );
 };
 
-export default Register;
+export default Categories;
