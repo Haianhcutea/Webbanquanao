@@ -23,6 +23,10 @@ const productSchema = new mongoose.Schema({
   updated_at: { type: Date, default: Date.now }
 });
 
+const products = "abc"
+const productssss = "abc"
+
+
 const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;
