@@ -23,8 +23,6 @@ const productSchema = new mongoose.Schema({
   updated_at: { type: Date, default: Date.now }
 });
 
-const abc ="abc";
-
 const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;
