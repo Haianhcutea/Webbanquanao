@@ -18,12 +18,10 @@ const productSchema = new mongoose.Schema({
   description: { type: String },
   category_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }, // Liên kết tới Category
   variants: [variantSchema], // Mảng biến thể sản phẩm (màu, size, ...)
-  image: [imageSchema], // Mảng hình ảnh sản phẩm
+  image: [imageSchema], 
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now }
 });
-
-const abc ="abc";
 
 const Product = mongoose.model('Product', productSchema);
 
