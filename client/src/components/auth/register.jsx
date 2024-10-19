@@ -1,8 +1,6 @@
 import React from "react";
 
 const Register = () => {
-
-  // call api
   return (
     <div className="col-sm-12 col-md-12 col-lg-6 col-xs-12">
       <form action="#">
