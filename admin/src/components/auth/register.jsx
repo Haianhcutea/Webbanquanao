@@ -4,7 +4,7 @@ import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { openNotificationWithIcon, NotificationContext } from "../../App";
 import axios from "axios";
-
+//call api
 const Register = () => {
   const api = useContext(NotificationContext);
   const navigate = useNavigate();
