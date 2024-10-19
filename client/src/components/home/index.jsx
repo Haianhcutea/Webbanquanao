@@ -2,7 +2,6 @@ import React from "react";
 
 import Slider from "react-slick";
 import { Tabs } from "antd";
-
 //
 import products_3 from "@/assets/img/products/3-600x800.webp";
 import products_3_1 from "@/assets/img/products/3_1-600x800.webp";
