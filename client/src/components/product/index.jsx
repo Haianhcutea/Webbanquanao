@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import React from 'react'
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
 import React, { useEffect, useState } from "react";
 import Breadcumb from "../layouts/breadcumb";
 import axios from "axios";
@@ -28,7 +32,14 @@ const Product = () => {
   console.log(data);
   
 
+<<<<<<< HEAD
   return (
+=======
+return (
+    <div>Product</div>
+  )
+}
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
     <div>
       <Breadcumb parentTitle={"Sản phẩm"} title={"Áo thun"} />
 
@@ -296,7 +307,13 @@ const Product = () => {
         </div>
       </div>
     </div>
+<<<<<<< HEAD
   );
 };
 
 export default Product;
+=======
+
+
+export default Product
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d

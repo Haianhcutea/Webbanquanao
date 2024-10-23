@@ -258,4 +258,8 @@ const OurProducts = () => {
   return <Tabs items={items}></Tabs>;
 };
 
+<<<<<<< HEAD
 export default OurProducts;
+=======
+export default OurProducts;
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d

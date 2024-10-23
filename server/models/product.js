@@ -5,7 +5,12 @@ const variantSchema = new mongoose.Schema({
   size: { type: String, required: true },
   sku: { type: String, required: true },
   stock: { type: Number, required: true },
+<<<<<<< HEAD
   price: { type: Number, required: true }
+=======
+  price: { type: Number, required: true },
+  price_sale: { type: Number, required: false },
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
 });
 
 const imageSchema = new mongoose.Schema({
@@ -18,7 +23,11 @@ const productSchema = new mongoose.Schema({
   description: { type: String },
   category_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }, // Liên kết tới Category
   variants: [variantSchema], // Mảng biến thể sản phẩm (màu, size, ...)
+<<<<<<< HEAD
   image: [imageSchema], // Mảng hình ảnh sản phẩm
+=======
+  image: [imageSchema], 
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now }
 });

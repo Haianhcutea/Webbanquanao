@@ -14,6 +14,7 @@ const addProduct = async (req, res) => {
 
     // Nếu có variants, kiểm tra xem nó có phải là mảng không
     if (data.variants) {
+<<<<<<< HEAD
       if (Array.isArray(data.variants)) {
         data.variants = data.variants.map(variant => JSON.parse(variant)); // Chuyển đổi từng variant từ chuỗi sang đối tượng
       } else {
@@ -25,11 +26,32 @@ const addProduct = async (req, res) => {
     
     res.status(201).json(newProduct);
   } catch (error) {
+=======
+      // Nếu variants là một mảng chuỗi, parse từng chuỗi
+      if (Array.isArray(data.variants)) {
+        data.variants = data.variants.map(variant => JSON.parse(variant)); // Chuyển đổi từng variant từ chuỗi sang đối tượng
+      } else {
+        // Nếu không phải là mảng, chuyển đổi trực tiếp
+        data.variants = JSON.parse(data.variants);
+      }
+    }
+
+    // Gọi hàm thêm tài liệu từ crudService
+    const newProduct = await crudService.addDocument(Product, data);
+    
+    // Trả về sản phẩm mới
+    res.status(201).json(newProduct);
+  } catch (error) {
+    console.error("Error creating product:", error); // Log error for debugging
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
     res.status(500).json({ message: 'Error creating product', error: error.message });
   }
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
 // Lấy sản phẩm theo ID
 const getProductById = async (req, res) => {
     const { id } = req.params;
@@ -74,6 +96,10 @@ const updateProduct = async (req, res) => {
   const updatedData = req.body;
 
   try {
+<<<<<<< HEAD
+=======
+    // Tìm sản phẩm theo ID
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
@@ -82,7 +108,11 @@ const updateProduct = async (req, res) => {
     // Nếu có file ảnh mới được upload
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map(file => ({ img_url: `/uploads/${file.filename}` }));
+<<<<<<< HEAD
       product.image = newImages;  // Gắn mảng đường dẫn ảnh mới vào sản phẩm
+=======
+      updatedData.image = newImages;  // Gắn mảng đường dẫn ảnh mới vào sản phẩm
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
     }
 
     // Cập nhật các trường khác của sản phẩm
@@ -93,19 +123,30 @@ const updateProduct = async (req, res) => {
 
     // Nếu có biến thể mới (variants), kiểm tra để đảm bảo là mảng
     if (Array.isArray(updatedData.variants)) {
+<<<<<<< HEAD
       product.variants = updatedData.variants.map(variant => JSON.parse(variant));  // Ghi đè biến thể mới nếu có
+=======
+      product.variants = updatedData.variants;  // Ghi đè biến thể mới nếu có
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
     }
 
     // Lưu sản phẩm sau khi cập nhật
     const updatedProduct = await product.save();
 
+<<<<<<< HEAD
+=======
+    // Trả về sản phẩm đã cập nhật
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
     res.status(200).json(updatedProduct);
   } catch (error) {
     res.status(500).json({ message: 'Error updating product', error: error.message });
   }
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
 // Xóa mềm sản phẩm (thay đổi trạng thái thành 'inactive')
 const softDeleteProduct = async (req, res) => {
   const { id } = req.params;

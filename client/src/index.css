@@ -43,6 +43,7 @@
     padding: 10px; /* Có thể điều chỉnh padding */
     box-sizing: border-box; /* Để padding không làm ảnh hưởng đến chiều rộng tổng */
   }
+<<<<<<< HEAD
   
   /* style product detail  */
 
@@ -61,3 +62,6 @@
   .login-form .ant-input {
     margin: 0;
   }
+=======
+  
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d

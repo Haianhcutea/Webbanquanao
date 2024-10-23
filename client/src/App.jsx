@@ -10,6 +10,14 @@ import { createContext, useEffect } from "react";
 import { notification } from "antd";
 import Register from "./components/auth/register";
 import { setUser } from "./store/auth";
+<<<<<<< HEAD
+=======
+import LoginAdmin from "./components/admin/components/auth/login";
+import MainLayoutAdmin from "./components/admin/components/layouts/mainLayouts";
+import CategoriesAdmin from "./components/admin/components/category";
+import ProductsAdmin from "./components/admin/components/product";
+import { setUserAdmin } from "./store/admin/auth";
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
 
 export const NotificationContext = createContext(null);
 
@@ -26,7 +34,12 @@ function App() {
   const dispatch = useDispatch();
   const [api, contextHolder] = notification.useNotification();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+<<<<<<< HEAD
   const isLoading = useSelector((state) => state.auth.isLoading);
+=======
+  const isAuthenticatedAdmin = useSelector((state) => state.authAdmin.isAuthenticated);
+  console.log(isAuthenticatedAdmin, "111111");
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -35,10 +48,26 @@ function App() {
     if (token && userInfor?.name) {
       dispatch(setUser(userInfor));
     }
+<<<<<<< HEAD
   }, [dispatch]);
 
   const PrivateRoute = () => {
     return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+=======
+    // admin
+    const tokenAdmin = localStorage.getItem("tokenAdmin");
+    const userInforAdmin = JSON.parse(localStorage.getItem("userAdmin")) ?? "";
+    if (tokenAdmin && userInforAdmin?.name) {
+      dispatch(setUserAdmin(userInforAdmin));
+    }
+  }, [dispatch]);
+
+  const PrivateRoute = () => {
+    return isAuthenticated ? <Outlet /> : <Navigate to="/auth/login" />;
+  };
+  const PrivateRouteAdmin = () => {
+    return isAuthenticatedAdmin ? <Outlet /> : <Navigate to="/admin/login" />;
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
   };
 
   return (
@@ -53,7 +82,11 @@ function App() {
                 <Route path="products" element={<Products />} />
               </Route>
             </Route> */}
+<<<<<<< HEAD
 
+=======
+          {/* CLIENT */}
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
           <Route path="/auth" element={<AuthLayouts />}>
             <Route path="login" element={<Login />}></Route>
             <Route path="register" element={<Register />}></Route>
@@ -68,6 +101,17 @@ function App() {
           </Route>
 
           <Route path="*" element={<Navigate to="/" />} />
+<<<<<<< HEAD
+=======
+          {/* ADMIN */}
+          <Route path="/admin" element={<PrivateRouteAdmin />}>
+            <Route path="dashboard" element={<MainLayoutAdmin />}>
+              <Route path="categories" element={<CategoriesAdmin />} />
+              <Route path="products" element={<ProductsAdmin />} />
+            </Route>
+          </Route>
+          <Route path="/admin/login" element={<LoginAdmin />} />
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
         </Routes>
         {/* </Spin> */}
       </div>
@@ -75,4 +119,8 @@ function App() {
   );
 }
 
+<<<<<<< HEAD
 export default App;
+=======
+export default App;
+>>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
