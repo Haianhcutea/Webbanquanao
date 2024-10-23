@@ -2,6 +2,8 @@ const express = require('express');
 const { registerUser, loginUser } = require('../controllers/authController');
 const { addCategory, getCategories, updateCategory, softDeleteCategory } = require('../controllers/categoryController');
 const { addProduct, getProductById, getProductsByCategory,  getAllProducts, updateProduct, softDeleteProduct } = require('../controllers/productController');
+const { addToCart } = require('../controllers/cartController');
+const authMiddleware = require('../middlewares/authMiddleware');
 const upload = require('../config/multerConfig'); // Cấu hình multer để upload file
 
 const router = express.Router();
@@ -49,4 +51,7 @@ router.put('/product/update/:id', updateProduct);
 // Route xóa mềm sản phẩm
 router.delete('/product/delete/:id', softDeleteProduct);
 
+// GIỎ HÀNG - CART
+// Thêm giỏ hàng
+router.post('/add-to-cart', authMiddleware, addToCart);
 module.exports = router;
