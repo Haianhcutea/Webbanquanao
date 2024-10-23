@@ -4853,8 +4853,9 @@ select {
   display: inline-block;
   margin-right: 5px;
   margin-top: 10px;
-  border: 2px solid transparent;
+  border: 2px solid #999;
 }
+/* chỉnh sửa style màu cho sản phẩm biến thể */
 .color span.color-choice-1 {
   background-color: #B09603;
 }
@@ -4869,7 +4870,21 @@ select {
   width: 32px;
   height: 32px;
 }
-
+.color span.color-choice-black {
+  background-color: black;
+}
+.color span.color-choice-white {
+  background-color: white;
+}
+.color span.color-choice-red {
+  background-color: red;
+}
+.color span.color-choice-green {
+  background-color: green;
+}
+.color span.color-choice-yellow {
+  background-color: yellow;
+}
 .group-product-form {
   margin-bottom: 20px;
 }
