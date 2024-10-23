@@ -5,7 +5,8 @@ const variantSchema = new mongoose.Schema({
   size: { type: String, required: true },
   sku: { type: String, required: true },
   stock: { type: Number, required: true },
-  price: { type: Number, required: true }
+  price: { type: Number, required: true },
+  price_sale: { type: Number, required: false },
 });
 
 const imageSchema = new mongoose.Schema({
