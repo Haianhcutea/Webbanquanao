@@ -1,13 +1,13 @@
-<<<<<<< HEAD
-=======
-import React from 'react'
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
 import React, { useEffect, useState } from "react";
 import Breadcumb from "../layouts/breadcumb";
 import axios from "axios";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Product = () => {
+  const category = useSelector((state) => state.category.listCategory);
   const [data, setData] = useState([]);
+  const [dataSorted, setDataSorted] = useState([]);
 
   // hàm chạy lần đầu lấy data
   useEffect(() => {
@@ -18,28 +18,28 @@ const Product = () => {
   const handleGetList = async () => {
     try {
       const response = await axios.get(`http://localhost:5555/api/product`);
-
       if (response.status === 200) {
         setData(response.data);
-        // lưu list category vào store
-        // dispatch(setListCategory(response.data));
+        setDataSorted(response.data); // Set sorted data to all initially
       }
     } catch (error) {
       console.error("Error occurred:", error);
-    } finally {
     }
   };
-  console.log(data);
-  
 
-<<<<<<< HEAD
+  // hàm sử dụng thay đổi sort
+  const handleChangeSort = (e) => {
+    const selectedCategory = e.target.value;
+
+    // Nếu "ALL" được chọn, hiển thị toàn bộ sản phẩm
+    if (selectedCategory === "ALL") {
+      setDataSorted(data);
+    } else {
+      setDataSorted(data.filter((item) => item.category_id === selectedCategory));
+    }
+  };
+
   return (
-=======
-return (
-    <div>Product</div>
-  )
-}
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
     <div>
       <Breadcumb parentTitle={"Sản phẩm"} title={"Áo thun"} />
 
@@ -57,26 +57,6 @@ return (
                         <div className="shop-header__left">
                           <div className="grid-icons">
                             <button
-                              data-target="grid three-column"
-                              data-tippy={3}
-                              data-tippy-inertia="true"
-                              data-tippy-animation="fade"
-                              data-tippy-delay={50}
-                              data-tippy-arrow="true"
-                              data-tippy-theme="roundborder"
-                              className="three-column"
-                            />
-                            <button
-                              data-target="grid four-column"
-                              data-tippy={4}
-                              data-tippy-inertia="true"
-                              data-tippy-animation="fade"
-                              data-tippy-delay={50}
-                              data-tippy-arrow="true"
-                              data-tippy-theme="roundborder"
-                              className="four-column d-none d-lg-block"
-                            />
-                            <button
                               data-target="grid five-column"
                               data-tippy={5}
                               data-tippy-inertia="true"
@@ -84,24 +64,16 @@ return (
                               data-tippy-delay={50}
                               data-tippy-arrow="true"
                               data-tippy-theme="roundborder"
-                              className="five-column d-none d-lg-block"
-                            />
-                            <button
-                              data-target="list"
-                              data-tippy="List"
-                              data-tippy-inertia="true"
-                              data-tippy-animation="fade"
-                              data-tippy-delay={50}
-                              data-tippy-arrow="true"
-                              data-tippy-theme="roundborder"
-                              className="active list-view"
+                              className="five-column active d-lg-block"
                             />
                           </div>
-                          <div className="shop-header__left__message">Showing 1 to 9 of 15 (2 Pages)</div>
+                          <div className="shop-header__left__message">
+                            Đang xem {dataSorted.length} of {data.length}
+                          </div>
                         </div>
                         <div className="shop-header__right">
                           <div className="single-select-block d-inline-block">
-                            <span className="select-title">Show:</span>
+                            <span className="select-title">Hiển thị:</span>
                             <select>
                               <option value={1}>10</option>
                               <option value={2}>20</option>
@@ -110,12 +82,14 @@ return (
                             </select>
                           </div>
                           <div className="single-select-block d-inline-block">
-                            <span className="select-title">Sort By:</span>
-                            <select className="pr-0">
-                              <option value={1}>Default</option>
-                              <option value={2}>Name (A-Z)</option>
-                              <option value={3}>Price (min - max)</option>
-                              <option value={4}>Color</option>
+                            <span className="select-title">Lọc theo danh sách:</span>
+                            <select className="pr-0" onChange={handleChangeSort}>
+                              <option value={"ALL"}>TẤT CẢ</option>
+                              {category.map((x) => (
+                                <option key={x?._id} value={x?._id}>
+                                  {x?.name}
+                                </option>
+                              ))}
                             </select>
                           </div>
                         </div>
@@ -125,9 +99,9 @@ return (
                     <div className="col-lg-12">
                       {/*=======  shop page content  =======*/}
                       <div className="shop-page-content">
-                        <div className="row shop-product-wrap list">
-                          {data.map((item) => (
-                            <div className="col-12 col-lg-4 col-md-4 col-sm-6">
+                        <div className="row shop-product-wrap grid five-column">
+                          {dataSorted.map((item) => (
+                            <div key={item?._id} className="col-12 col-md-4 col-sm-6 col-lg-is-5">
                               {/*=======  product grid view  =======*/}
                               <div className="single-grid-product grid-view-product">
                                 <div className="single-grid-product__image">
@@ -135,13 +109,15 @@ return (
                                     <span className="sale">-20%</span>
                                     <span className="new">New</span>
                                   </div>
-                                  <a href="single-product111.html111">
-                                    {
-                                      item?.image.map(x => (
-                                        <img width={600} height={800} src={`http://localhost:5555${x.img_url}`}className="img-fluid" alt="" />
-                                      ))
-                                    }
-                                  </a>
+                                  <Link to={`/product/${item?._id}`}>
+                                    <img
+                                      width={600}
+                                      height={800}
+                                      src={`http://localhost:5555${item?.image[0]?.img_url}`}
+                                      className="img-fluid"
+                                      alt=""
+                                    />
+                                  </Link>
                                   <div className="hover-icons">
                                     <a href="javascript:void(0)">
                                       <i className="ion-bag" />
@@ -149,18 +125,12 @@ return (
                                     <a href="javascript:void(0)">
                                       <i className="ion-heart" />
                                     </a>
-                                    <a href="javascript:void(0)">
-                                      <i className="ion-android-options" />
-                                    </a>
-                                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#quick-view-modal-container">
-                                      <i className="ion-android-open" />
-                                    </a>
                                   </div>
                                 </div>
                                 <div className="single-grid-product__content">
                                   <div className="single-grid-product__category-rating">
                                     <span className="category">
-                                      <a href="shop-left-sidebar.html">Decor</a>
+                                      <a>{category?.find((x) => x._id === item?.category_id)?.name}</a>
                                     </span>
                                     <span className="rating">
                                       <i className="ion-android-star active" />
@@ -171,98 +141,20 @@ return (
                                     </span>
                                   </div>
                                   <h3 className="single-grid-product__title">
-                                    {" "}
-                                    <a href="single-product.html">Cillum dolore lorem ipsum decoration item</a>
+                                    <a href="javascript:void(0)">{item?.name}</a>
                                   </h3>
                                   <p className="single-grid-product__price">
-                                    <span className="discounted-price">$100.00</span> <span className="main-price discounted">$120.00</span>
+                                    <span className="discounted-price">{item?.variants[0]?.price}</span>{" "}
+                                    <span className="main-price discounted">$120.00</span>
                                   </p>
                                 </div>
                               </div>
                               {/*=======  End of product grid view  =======*/}
-                              {/*=======  list view product  =======*/}
-                              <div className="single-grid-product single-grid-product--list-view list-view-product">
-                                <div className="single-grid-product__image single-grid-product--list-view__image">
-                                  <div className="single-grid-product__label">
-                                    <span className="sale">-20%</span>
-                                    <span className="new">New</span>
-                                  </div>
-                                  <a href="single-product.html">
-                                    {
-                                      item?.image.map(x => (
-                                        <img width={600} height={800} src={`http://localhost:5555${x.img_url}`} className="img-fluid" alt="" />
-                                      ))
-                                    }
-                                  </a>
-                                  <div className="hover-icons">
-                                    <a href="javascript:void(0)">
-                                      <i className="ion-bag" />
-                                    </a>
-                                    <a href="javascript:void(0)">
-                                      <i className="ion-heart" />
-                                    </a>
-                                    <a href="javascript:void(0)">
-                                      <i className="ion-android-options" />
-                                    </a>
-                                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#quick-view-modal-container">
-                                      <i className="ion-android-open" />
-                                    </a>
-                                  </div>
-                                </div>
-                                <div className="single-grid-product__content single-grid-product--list-view__content">
-                                  <div className="category">
-                                    <a href="shop-left-sidebar.html">Decor</a>
-                                  </div>
-                                  <h3 className="single-grid-product__title single-grid-product--list-view__title">
-                                    <a href="single-product.html">{item.name}</a>
-                                  </h3>
-                                  <div className="rating">
-                                    <i className="ion-android-star active" />
-                                    <i className="ion-android-star active" />
-                                    <i className="ion-android-star active" />
-                                    <i className="ion-android-star active" />
-                                    <i className="ion-android-star-outline" />
-                                  </div>
-                                  <p className="single-grid-product__price single-grid-product--list-view__price">
-                                    <span className="discounted-price">{
-                                        item.variants[0]?.price
-                                      }</span> <span className="main-price discounted">$120.00</span>
-                                  </p>
-                                  <p className="single-grid-product--list-view__product-short-desc">
-                                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Voluptate cupiditate provident praesentium, esse omnis
-                                    quis!
-                                  </p>
-                                </div>
-                              </div>
-                              {/*=======  End of list view product  =======*/}
                             </div>
                           ))}
                         </div>
                       </div>
                       {/*=======  pagination area =======*/}
-                      <div className="pagination-area">
-                        <div className="pagination-area__left">Showing 1 to 9 of 11 (2 Pages)</div>
-                        <div className="pagination-area__right">
-                          <ul className="pagination-section">
-                            <li>
-                              <a className="active" href="#">
-                                1
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">2</a>
-                            </li>
-                            <li>
-                              <a href="#">&gt;</a>
-                            </li>
-                            <li>
-                              <a href="#">&gt;|</a>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                      {/*=======  End of pagination area  =======*/}
-                      {/*=======  End of shop page content  =======*/}
                     </div>
                   </div>
                 </div>
@@ -272,48 +164,8 @@ return (
           </div>
         </div>
       </div>
-
-      <div className="newsletter-area section-space--inner">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-8 offset-lg-2">
-              <div className="newsletter-wrapper">
-                <p className="small-text">Special Ofers For Subscribers</p>
-                <h3 className="title">Ten Percent Member Discount</h3>
-                <p className="short-desc">
-                  Subscribe to our newsletters now and stay up to date with new collections, the latest lookbooks and exclusive offers.
-                </p>
-                <div className="newsletter-form">
-                  <form id="mc-form" className="mc-form">
-                    <input type="email" placeholder="Enter Your Email Address Here..." required="" />
-                    <button type="submit" value="submit">
-                      SUBSCRIBE
-                    </button>
-                  </form>
-                </div>
-                {/* mailchimp-alerts Start */}
-                <div className="mailchimp-alerts">
-                  <div className="mailchimp-submitting" />
-                  {/* mailchimp-submitting end */}
-                  <div className="mailchimp-success" />
-                  {/* mailchimp-success end */}
-                  <div className="mailchimp-error" />
-                  {/* mailchimp-error end */}
-                </div>
-                {/* mailchimp-alerts end */}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-<<<<<<< HEAD
   );
 };
 
 export default Product;
-=======
-
-
-export default Product
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d

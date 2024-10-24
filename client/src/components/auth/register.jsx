@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useContext } from "react";
 import { Button, Form, Input, Select } from "antd";
 import { Link, useNavigate } from "react-router-dom";
@@ -13,7 +12,6 @@ const Register = () => {
   const dispatch = useDispatch();
 
   const onFinish = async (values) => {
-    console.log("Received values of form: ", values);
     try {
       const response = await axios.post(`http://localhost:5555/api/auth/register`, values);
 
@@ -85,41 +83,6 @@ const Register = () => {
               <Button className="register-button" htmlType="submit">
                 Đăng ký
               </Button>
-=======
-import React from "react";
-
-const Register = () => {
-
-  // call api
-  return (
-    <div className="col-sm-12 col-md-12 col-lg-6 col-xs-12">
-      <form action="#">
-        <div className="login-form">
-          <h4 className="login-title">Register</h4>
-          <div className="row">
-            <div className="col-md-6 col-12 mb-20">
-              <label>First Name</label>
-              <input type="text" placeholder="First Name" />
-            </div>
-            <div className="col-md-6 col-12 mb-20">
-              <label>Last Name</label>
-              <input type="text" placeholder="Last Name" />
-            </div>
-            <div className="col-md-12 mb-20">
-              <label>Email Address*</label>
-              <input type="email" placeholder="Email Address" />
-            </div>
-            <div className="col-md-6 mb-20">
-              <label>Password</label>
-              <input type="password" placeholder="Password" />
-            </div>
-            <div className="col-md-6 mb-20">
-              <label>Confirm Password</label>
-              <input type="password" placeholder="Confirm Password" />
-            </div>
-            <div className="col-12">
-              <button className="register-button mt-0">Register</button>
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
             </div>
           </div>
         </div>
