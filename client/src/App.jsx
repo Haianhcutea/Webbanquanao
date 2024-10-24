@@ -10,14 +10,14 @@ import { createContext, useEffect } from "react";
 import { notification } from "antd";
 import Register from "./components/auth/register";
 import { setUser } from "./store/auth";
-<<<<<<< HEAD
-=======
 import LoginAdmin from "./components/admin/components/auth/login";
 import MainLayoutAdmin from "./components/admin/components/layouts/mainLayouts";
 import CategoriesAdmin from "./components/admin/components/category";
 import ProductsAdmin from "./components/admin/components/product";
 import { setUserAdmin } from "./store/admin/auth";
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
+import { fetchCategories } from "./store/categories";
+import { fetchCartDetailByUserID } from "./store/cart";
+import Order from "./components/order";
 
 export const NotificationContext = createContext(null);
 
@@ -34,12 +34,9 @@ function App() {
   const dispatch = useDispatch();
   const [api, contextHolder] = notification.useNotification();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-<<<<<<< HEAD
-  const isLoading = useSelector((state) => state.auth.isLoading);
-=======
-  const isAuthenticatedAdmin = useSelector((state) => state.authAdmin.isAuthenticated);
-  console.log(isAuthenticatedAdmin, "111111");
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
+  const isAuthenticatedAdmin = useSelector(
+    (state) => state.authAdmin.isAuthenticated
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -47,16 +44,15 @@ function App() {
 
     if (token && userInfor?.name) {
       dispatch(setUser(userInfor));
+      // lưu danh sách categories khi có user
+      dispatch(fetchCategories());
+      dispatch(fetchCartDetailByUserID({ token, userId: userInfor._id }));
     }
-<<<<<<< HEAD
-  }, [dispatch]);
 
-  const PrivateRoute = () => {
-    return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
-=======
     // admin
     const tokenAdmin = localStorage.getItem("tokenAdmin");
     const userInforAdmin = JSON.parse(localStorage.getItem("userAdmin")) ?? "";
+
     if (tokenAdmin && userInforAdmin?.name) {
       dispatch(setUserAdmin(userInforAdmin));
     }
@@ -65,44 +61,31 @@ function App() {
   const PrivateRoute = () => {
     return isAuthenticated ? <Outlet /> : <Navigate to="/auth/login" />;
   };
+
   const PrivateRouteAdmin = () => {
     return isAuthenticatedAdmin ? <Outlet /> : <Navigate to="/admin/login" />;
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
   };
 
   return (
     <NotificationContext.Provider value={api}>
       <div>
         {contextHolder}
-        {/* <Spin spinning={isLoading} tip="Loading...">   */}
         <Routes>
-          {/* <Route path="/" element={<PrivateRoute />}>
-              <Route path="/" element={<MainLayouts />}>
-                <Route path="categories" element={<Categories />} />
-                <Route path="products" element={<Products />} />
-              </Route>
-            </Route> */}
-<<<<<<< HEAD
-
-=======
           {/* CLIENT */}
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
           <Route path="/auth" element={<AuthLayouts />}>
             <Route path="login" element={<Login />}></Route>
             <Route path="register" element={<Register />}></Route>
           </Route>
-
+          <Route path="/" element={<Navigate to="/home" />} />{" "}
+          {/* Redirect / to /home */}
           <Route path="/" element={<PrivateRoute />}>
             <Route element={<MainLayouts />}>
               <Route path="home" element={<Home />}></Route>
               <Route path="product" element={<Product />}></Route>
               <Route path="product/:id" element={<ProductDetail />}></Route>
+              <Route path="order" element={<Order />}></Route>
             </Route>
           </Route>
-
-          <Route path="*" element={<Navigate to="/" />} />
-<<<<<<< HEAD
-=======
           {/* ADMIN */}
           <Route path="/admin" element={<PrivateRouteAdmin />}>
             <Route path="dashboard" element={<MainLayoutAdmin />}>
@@ -111,16 +94,21 @@ function App() {
             </Route>
           </Route>
           <Route path="/admin/login" element={<LoginAdmin />} />
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
+          {/* Fallback Route */}
+          <Route
+            path="*"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/home" />
+              ) : (
+                <Navigate to="/auth/login" />
+              )
+            }
+          />
         </Routes>
-        {/* </Spin> */}
       </div>
     </NotificationContext.Provider>
   );
 }
 
-<<<<<<< HEAD
 export default App;
-=======
-export default App;
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
