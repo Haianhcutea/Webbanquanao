@@ -2,11 +2,9 @@ const express = require('express');
 const { registerUser, loginUser } = require('../controllers/authController');
 const { addCategory, getCategories, updateCategory, softDeleteCategory } = require('../controllers/categoryController');
 const { addProduct, getProductById, getProductsByCategory,  getAllProducts, updateProduct, softDeleteProduct } = require('../controllers/productController');
-<<<<<<< HEAD
-=======
-const { addToCart } = require('../controllers/cartController');
+const { addToCart, getCartDetails } = require('../controllers/cartController');
+const { placeOrder, getUserOrders, getAllOrders, updateOrder } = require('../controllers/orderController.js');
 const authMiddleware = require('../middlewares/authMiddleware');
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
 const upload = require('../config/multerConfig'); // Cấu hình multer để upload file
 
 const router = express.Router();
@@ -54,11 +52,27 @@ router.put('/product/update/:id', updateProduct);
 // Route xóa mềm sản phẩm
 router.delete('/product/delete/:id', softDeleteProduct);
 
-<<<<<<< HEAD
-module.exports = router;
-=======
+
+
 // GIỎ HÀNG - CART
 // Thêm giỏ hàng
 router.post('/add-to-cart', authMiddleware, addToCart);
+
+// list giỏ hàng
+router.get('/cart', authMiddleware, getCartDetails);
+
+// ĐƠN HÀNG 
+// đặt hàng  
+router.post('/place-order', authMiddleware, placeOrder);
+
+// lấy danh sách đơn hàng của người dùng
+router.get('/orders', authMiddleware, getUserOrders);
+
+// Admin lấy toàn bộ đơn hàng
+router.get('/all-orders', getAllOrders);
+
+// Route cập nhật đơn hàng
+router.put('/order/:orderId', updateOrder);
+
 module.exports = router;
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
+
