@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
 
 // Kiểm tra loại file (chỉ cho phép upload ảnh)
 const fileFilter = (req, file, cb) => {
-  const allowedFileTypes = /jpeg|jpg|png|gif/;
+  const allowedFileTypes = /jpeg|jpg|png|gif|webp/;
   const extname = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedFileTypes.test(file.mimetype);
 
