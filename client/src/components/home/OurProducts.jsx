@@ -51,8 +51,20 @@ const OurProducts = () => {
               <div className="single-grid-product">
                 <div className="single-grid-product__image">
                   <a href="single-product.html">
-                    <img width={600} height={800} src={products_3} className="img-fluid" alt="" />
-                    <img width={600} height={800} src={products_3_1} className="img-fluid" alt="" />
+                    <img
+                      width={600}
+                      height={800}
+                      src={products_3}
+                      className="img-fluid"
+                      alt=""
+                    />
+                    <img
+                      width={600}
+                      height={800}
+                      src={products_3_1}
+                      className="img-fluid"
+                      alt=""
+                    />
                   </a>
                   <div className="hover-icons">
                     <a href="javascript:void(0)">
@@ -64,7 +76,11 @@ const OurProducts = () => {
                     <a href="javascript:void(0)">
                       <i className="ion-android-options" />
                     </a>
-                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#quick-view-modal-container">
+                    <a
+                      href="javascript:void(0)"
+                      data-bs-toggle="modal"
+                      data-bs-target="#quick-view-modal-container"
+                    >
                       <i className="ion-android-open" />
                     </a>
                   </div>
@@ -83,7 +99,9 @@ const OurProducts = () => {
                     </span>
                   </div>
                   <h3 className="single-grid-product__title">
-                    <a href="single-product.html">Cillum dolore lorem ipsum decoration item</a>
+                    <a href="single-product.html">
+                      Cillum dolore lorem ipsum decoration item
+                    </a>
                   </h3>
                   <p className="single-grid-product__price">
                     <span className="main-price">$120.00</span>
@@ -97,8 +115,20 @@ const OurProducts = () => {
               <div className="single-grid-product">
                 <div className="single-grid-product__image">
                   <a href="single-product.html">
-                    <img width={600} height={800} src={products_3} className="img-fluid" alt="" />
-                    <img width={600} height={800} src={products_3_1} className="img-fluid" alt="" />
+                    <img
+                      width={600}
+                      height={800}
+                      src={products_3}
+                      className="img-fluid"
+                      alt=""
+                    />
+                    <img
+                      width={600}
+                      height={800}
+                      src={products_3_1}
+                      className="img-fluid"
+                      alt=""
+                    />
                   </a>
                   <div className="hover-icons">
                     <a href="javascript:void(0)">
@@ -110,7 +140,11 @@ const OurProducts = () => {
                     <a href="javascript:void(0)">
                       <i className="ion-android-options" />
                     </a>
-                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#quick-view-modal-container">
+                    <a
+                      href="javascript:void(0)"
+                      data-bs-toggle="modal"
+                      data-bs-target="#quick-view-modal-container"
+                    >
                       <i className="ion-android-open" />
                     </a>
                   </div>
@@ -129,7 +163,9 @@ const OurProducts = () => {
                     </span>
                   </div>
                   <h3 className="single-grid-product__title">
-                    <a href="single-product.html">Cillum dolore lorem ipsum decoration item</a>
+                    <a href="single-product.html">
+                      Cillum dolore lorem ipsum decoration item
+                    </a>
                   </h3>
                   <p className="single-grid-product__price">
                     <span className="main-price">$120.00</span>
@@ -143,8 +179,20 @@ const OurProducts = () => {
               <div className="single-grid-product">
                 <div className="single-grid-product__image">
                   <a href="single-product.html">
-                    <img width={600} height={800} src={products_3} className="img-fluid" alt="" />
-                    <img width={600} height={800} src={products_3_1} className="img-fluid" alt="" />
+                    <img
+                      width={600}
+                      height={800}
+                      src={products_3}
+                      className="img-fluid"
+                      alt=""
+                    />
+                    <img
+                      width={600}
+                      height={800}
+                      src={products_3_1}
+                      className="img-fluid"
+                      alt=""
+                    />
                   </a>
                   <div className="hover-icons">
                     <a href="javascript:void(0)">
@@ -156,7 +204,11 @@ const OurProducts = () => {
                     <a href="javascript:void(0)">
                       <i className="ion-android-options" />
                     </a>
-                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#quick-view-modal-container">
+                    <a
+                      href="javascript:void(0)"
+                      data-bs-toggle="modal"
+                      data-bs-target="#quick-view-modal-container"
+                    >
                       <i className="ion-android-open" />
                     </a>
                   </div>
@@ -175,7 +227,9 @@ const OurProducts = () => {
                     </span>
                   </div>
                   <h3 className="single-grid-product__title">
-                    <a href="single-product.html">Cillum dolore lorem ipsum decoration item</a>
+                    <a href="single-product.html">
+                      Cillum dolore lorem ipsum decoration item
+                    </a>
                   </h3>
                   <p className="single-grid-product__price">
                     <span className="main-price">$120.00</span>
@@ -189,8 +243,20 @@ const OurProducts = () => {
               <div className="single-grid-product">
                 <div className="single-grid-product__image">
                   <a href="single-product.html">
-                    <img width={600} height={800} src={products_3} className="img-fluid" alt="" />
-                    <img width={600} height={800} src={products_3_1} className="img-fluid" alt="" />
+                    <img
+                      width={600}
+                      height={800}
+                      src={products_3}
+                      className="img-fluid"
+                      alt=""
+                    />
+                    <img
+                      width={600}
+                      height={800}
+                      src={products_3_1}
+                      className="img-fluid"
+                      alt=""
+                    />
                   </a>
                   <div className="hover-icons">
                     <a href="javascript:void(0)">
@@ -202,7 +268,11 @@ const OurProducts = () => {
                     <a href="javascript:void(0)">
                       <i className="ion-android-options" />
                     </a>
-                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#quick-view-modal-container">
+                    <a
+                      href="javascript:void(0)"
+                      data-bs-toggle="modal"
+                      data-bs-target="#quick-view-modal-container"
+                    >
                       <i className="ion-android-open" />
                     </a>
                   </div>
@@ -221,7 +291,9 @@ const OurProducts = () => {
                     </span>
                   </div>
                   <h3 className="single-grid-product__title">
-                    <a href="single-product.html">Cillum dolore lorem ipsum decoration item</a>
+                    <a href="single-product.html">
+                      Cillum dolore lorem ipsum decoration item
+                    </a>
                   </h3>
                   <p className="single-grid-product__price">
                     <span className="main-price">$120.00</span>
@@ -258,8 +330,4 @@ const OurProducts = () => {
   return <Tabs items={items}></Tabs>;
 };
 
-<<<<<<< HEAD
 export default OurProducts;
-=======
-export default OurProducts;
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
