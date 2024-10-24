@@ -37,10 +37,10 @@ const MainLayout = () => {
   };
 
   const handleButtonClick = (e) => {
-    console.log("click left button", e);
+    
   };
   const handleMenuClickAcc = (e) => {
-    console.log("click", e);
+    
 
     // đăng xuất
     if (e.key === "2") {
@@ -67,7 +67,7 @@ const MainLayout = () => {
   };
 
   const handleMenuClick = (e) => {
-    console.log(e.key); 
+  
 
     if (e.key === "1") {
       navigate("/categories");

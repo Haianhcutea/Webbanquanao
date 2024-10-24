@@ -11,7 +11,7 @@ const Products = () => {
 
   const category = useSelector(state => state.category.listCategory);
 
-  console.log(category, "category");
+  
   
 
   const [open, setOpen] = useState(false);
@@ -81,7 +81,7 @@ const Products = () => {
           <Button
             icon={<EditOutlined />}
             onClick={() => {
-              console.log(record, "aaaaaaaa");
+              
 
               const formattedImages = formatImageFileList(record?.image);
               setFileList(formattedImages);
@@ -365,61 +365,81 @@ const Products = () => {
           {(fields, { add, remove }, { errors }) => (
             <>
               {fields.map((field, index) => (
-                <div key={index} style={{ display: "flex", marginBottom: 8, alignItems: "center", gap: 8 }}>
-                  <Form.Item
-                    {...field}
-                    name={[field.name, "size"]}
-                    validateTrigger={["onChange", "onBlur"]}
-                    rules={[{ required: true, whitespace: true, message: "Vui lòng nhập size sản phẩm." }]}
-                    noStyle>
-                    <Input placeholder="Size" />
-                  </Form.Item>
-
-                  <Form.Item
-                    {...field}
-                    name={[field.name, "sku"]}
-                    validateTrigger={["onChange", "onBlur"]}
-                    rules={[{ required: true, whitespace: true, message: "Vui lòng nhập mô tả thêm." }]}
-                    noStyle>
-                    <Input placeholder="Mô tả thêm" />
-                  </Form.Item>
-
-                  <Form.Item
-                    {...field}
-                    name={[field.name, "color"]}
-                    rules={[{ required: true, message: "Please input color!" }]}
-                    validateTrigger={["onChange", "onBlur"]}
-                    noStyle>
-                    <Input placeholder="Màu" />
-                  </Form.Item>
-
-                  <Form.Item
-                    {...field}
-                    name={[field.name, "price"]}
-                    validateTrigger={["onChange", "onBlur"]}
-                    rules={[{ required: true, message: "Vui lòng nhập giá sản phẩm." }]}
-                    style={{width: "100%", margin: 0}}>
-                    <InputNumber placeholder="Giá" />
-                  </Form.Item>
-
-                  <Form.Item
-                    {...field}
-                    name={[field.name, "stock"]}
-                    validateTrigger={["onChange", "onBlur"]}
-                    rules={[{ required: true, message: "Vui lòng nhập số lượng." }]}
-                    style={{width: "100%", margin: 0}}>
-                    <InputNumber placeholder="Nhập số lượng" />
-                  </Form.Item>
-
-                  {/* Nút xóa */}
-                  {fields.length > 1 ? (
-                    <MinusCircleOutlined
-                      className="dynamic-delete-button"
-                      onClick={() => remove(field.name)}
-                      style={{ fontSize: 24, color: "red" }}
-                    />
-                  ) : null}
-                </div>
+                              <Row key={index} gutter={16} align="middle" style={{ marginBottom: 8 }}>
+                  <Col span={4}>
+                    <Form.Item
+                      {...field}
+                      name={[field.name, "size"]}
+                      label={"Size"}
+                      validateTrigger={["onChange", "onBlur"]}
+                      rules={[{ required: true, whitespace: true, message: "Vui lòng nhập size sản phẩm." }]}>
+                      <Select placeholder="Please select a Size">
+                        <Select.Option value="S">Size S</Select.Option>
+                        <Select.Option value="XS">Size XS</Select.Option>
+                        <Select.Option value="M">Size M</Select.Option>
+                        <Select.Option value="L">Size L</Select.Option>
+                        <Select.Option value="XL">Size XL</Select.Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                  <Col span={4}>
+                    <Form.Item
+                      {...field}
+                      label={"Mô tả"}
+                      name={[field.name, "sku"]}
+                      validateTrigger={["onChange", "onBlur"]}
+                      rules={[{ required: true, whitespace: true, message: "Vui lòng nhập mô tả thêm." }]}>
+                      <Input placeholder="Mô tả thêm" />
+                    </Form.Item>
+                  </Col>
+                  <Col span={4}>
+                    <Form.Item
+                      {...field}
+                      label={"Màu"}
+                      name={[field.name, "color"]}
+                      rules={[{ required: true, message: "Please input color!" }]}
+                      validateTrigger={["onChange", "onBlur"]}>
+                      <Select placeholder="Please select a Màu">
+                        <Select.Option value="white">Màu trắng</Select.Option>
+                        <Select.Option value="black">Màu đen</Select.Option>
+                        <Select.Option value="red">Màu đỏ</Select.Option>
+                        <Select.Option value="green">Màu xanh</Select.Option>
+                        <Select.Option value="yellow">Màu vàng</Select.Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                  <Col span={3}>
+                    <Form.Item
+                      {...field}
+                      label={"Giá"}
+                      name={[field.name, "price"]}
+                      validateTrigger={["onChange", "onBlur"]}
+                      rules={[{ required: true, message: "Vui lòng nhập giá sản phẩm." }]}
+                      style={{ margin: 0 }}>
+                      <InputNumber placeholder="Giá" style={{ width: "100%" }} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={3}>
+                    <Form.Item
+                      {...field}
+                      label={"Số lượng"}
+                      name={[field.name, "stock"]}
+                      validateTrigger={["onChange", "onBlur"]}
+                      rules={[{ required: true, message: "Vui lòng nhập số lượng." }]}
+                      style={{ margin: 0 }}>
+                      <InputNumber placeholder="Nhập số lượng" style={{ width: "100%" }} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={2}>
+                    {fields.length > 1 ? (
+                      <MinusCircleOutlined
+                        className="dynamic-delete-button"
+                        onClick={() => remove(field.name)}
+                        style={{ fontSize: 24, color: "red" }}
+                      />
+                    ) : null}
+                  </Col>
+                </Row>
               ))}
 
               <Form.Item>
@@ -463,7 +483,7 @@ const Products = () => {
 
       <Drawer
         title={action === "ADD" ? "Thêm mới sản phẩm" : "Cập nhật sản phẩm"}
-        width={720}
+        width={1080}
         onClose={onClose}
         open={open}
         styles={{
