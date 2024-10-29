@@ -70,7 +70,6 @@ const addToCart = async (req, res) => {
 
 // Lấy chi tiết giỏ hàng của người dùng
 const getCartDetails = async (req, res) => {
-  console.log('User from auth middleware:', req.user);
   const user_id = req.user._id; // Lấy user_id từ req.user (đã có middleware auth)
 
   try {
