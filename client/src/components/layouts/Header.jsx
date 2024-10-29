@@ -2,10 +2,14 @@ import React, { useEffect, useState } from "react";
 
 import logo from "@/assets/img/logo.webp";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../store/auth";
+import { clearCartStore } from "../../store/cart";
 
 const Header = () => {
+  const dispatch = useDispatch();
   const cartByUserID = useSelector((state) => state.cart);
+  const userInfor = JSON.parse(localStorage.getItem("user")) ?? "";
 
   const [isSettingsMenuActive, setIsSettingsMenuActive] = useState(false);
   const [isMiniCartActive, setIsMiniCartActive] = useState(false);
@@ -14,11 +18,7 @@ const Header = () => {
     // Sự kiện đóng khi click ra ngoài.
     const handleClickOutside = (e) => {
       // Kiểm tra nếu click ra ngoài của cả settings và mini-cart
-      if (
-        !e.target.closest(".header-settings-icon") &&
-        !e.target.closest(".mini-cart") &&
-        !e.target.closest(".header-cart-icon")
-      ) {
+      if (!e.target.closest(".header-settings-icon") && !e.target.closest(".mini-cart") && !e.target.closest(".header-cart-icon")) {
         setIsSettingsMenuActive(false);
         setIsMiniCartActive(false);
         document.body.classList.remove("active-overlay");
@@ -59,13 +59,7 @@ const Header = () => {
               {/* logo */}
               <div className="logo">
                 <a>
-                  <img
-                    width={93}
-                    height={25}
-                    src={logo}
-                    className="img-fluid"
-                    alt=""
-                  />
+                  <img width={93} height={25} src={logo} className="img-fluid" alt="" />
                 </a>
               </div>
               {/* menu wrapper */}
@@ -94,44 +88,21 @@ const Header = () => {
                 <ul className="icon-list">
                   <li>
                     <div className="header-cart-icon">
-                      <a
-                        href="#"
-                        id="minicart-trigger"
-                        onClick={handleMiniCartClick}
-                      >
+                      <a href="#" id="minicart-trigger" onClick={handleMiniCartClick}>
                         <i className="ion-bag" />
-                        <span className="counter">
-                          {cartByUserID?.cartData?.length}
-                        </span>
+                        <span className="counter">{cartByUserID?.cartData?.length}</span>
                       </a>
                       {/* mini cart  */}
-                      <div
-                        className={`mini-cart ${
-                          isMiniCartActive ? "active" : ""
-                        }`}
-                        id="mini-cart"
-                      >
+                      <div className={`mini-cart ${isMiniCartActive ? "active" : ""}`} id="mini-cart">
                         <div className="cart-items-wrapper ps-scroll">
                           {cartByUserID?.cartData?.map((product) => (
-                            <div
-                              className="single-cart-item"
-                              key={product.product_id}
-                            >
-                              <a
-                                href="javascript:void(0)"
-                                className="remove-icon"
-                              >
+                            <div className="single-cart-item" key={product.product_id}>
+                              <a href="javascript:void(0)" className="remove-icon">
                                 <i className="ion-android-close" />
                               </a>
                               <div className="image">
                                 <a href="javascript:void(0)">
-                                  <img
-                                    src={`http://localhost:5555${product.img_url}`}
-                                    width={80}
-                                    height={106}
-                                    className="img-fluid"
-                                    alt=""
-                                  />
+                                  <img src={`http://localhost:5555${product.img_url}`} width={80} height={106} className="img-fluid" alt="" />
                                 </a>
                               </div>
                               <div className="content">
@@ -141,9 +112,7 @@ const Header = () => {
                                 {/* Lặp qua từng biến thể để hiển thị thông tin số lượng và giá */}
                                 {product.variant.map((variant, index) => (
                                   <p className="count" key={index}>
-                                    <span>{variant.quantity} x </span> $
-                                    {variant.price} - Màu {variant.color} -
-                                    Size: {variant.size}
+                                    <span>{variant.quantity} x </span> ${variant.price} - Màu {variant.color} - Size: {variant.size}
                                   </p>
                                 ))}
                               </div>
@@ -155,16 +124,14 @@ const Header = () => {
                             <tbody>
                               <tr>
                                 <td className="text-start">Total :</td>
-                                <td className="text-end">
-                                  {cartByUserID?.total_price}
-                                </td>
+                                <td className="text-end">{cartByUserID?.total_price}</td>
                               </tr>
                             </tbody>
                           </table>
                         </div>
                         <div className="cart-buttons">
-                          <Link to="/order">VIEW CART</Link>
-                          <Link to="/order">CHECKOUT</Link>
+                          <Link to="/order">Giỏ hàng</Link>
+                          <Link to="/order">Thanh toán</Link>
                         </div>
                       </div>
                     </div>
@@ -173,35 +140,42 @@ const Header = () => {
                     <div className="header-settings-icon">
                       <li>
                         {/* Settings Trigger */}
-                        <a
-                          href="javascript:void(0)"
-                          id="header-settings-trigger"
-                          onClick={handleSettingsClick}
-                        >
+                        <a href="javascript:void(0)" id="header-settings-trigger" onClick={handleSettingsClick}>
                           <div className="setting-button">
                             <span />
                             <span />
                             <span />
                           </div>
                         </a>
-
                         {/* Settings Menu */}
-                        <div
-                          className={`settings-menu-wrapper ${
-                            isSettingsMenuActive ? "active" : ""
-                          }`}
-                          id="settings-menu-wrapper"
-                        >
+                        <div className={`settings-menu-wrapper ${isSettingsMenuActive ? "active" : ""}`} id="settings-menu-wrapper">
                           <div className="single-settings-block">
                             <h4 className="title">Tài khoản</h4>
-                            <ul>
-                              <li>
-                                <Link to="/auth/login">Đăng nhập</Link>
-                              </li>
-                              <li>
-                                <Link to="/auth/register">Đăng ký</Link>
-                              </li>
-                            </ul>
+                            {userInfor?.name && userInfor?.name !== "" ? (
+                              <ul>
+                                <li>
+                                  <Link to="/my-account">Tài khoản</Link>
+                                </li>
+                                <li>
+                                  <a
+                                    onClick={() => {
+                                      dispatch(logout());
+                                      dispatch(clearCartStore());
+                                    }}>
+                                    Đăng xuất
+                                  </a>
+                                </li>
+                              </ul>
+                            ) : (
+                              <ul>
+                                <li>
+                                  <Link to="/auth/login">Đăng nhập</Link>
+                                </li>
+                                <li>
+                                  <Link to="/auth/register">Đăng ký</Link>
+                                </li>
+                              </ul>
+                            )}
                           </div>
                         </div>
                       </li>
@@ -217,13 +191,7 @@ const Header = () => {
                 <div className="col-6 col-md-6">
                   <div className="header-logo">
                     <a href="javascript:void(0)">
-                      <img
-                        width={93}
-                        height={25}
-                        src="assets/img/logo.webp"
-                        className="img-fluid"
-                        alt=""
-                      />
+                      <img width={93} height={25} src="assets/img/logo.webp" className="img-fluid" alt="" />
                     </a>
                   </div>
                 </div>
@@ -240,11 +208,7 @@ const Header = () => {
                           </div>
                         </li>
                         <li>
-                          <a
-                            href="javascript:void(0)"
-                            className="mobile-menu-icon"
-                            id="mobile-menu-trigger"
-                          >
+                          <a href="javascript:void(0)" className="mobile-menu-icon" id="mobile-menu-trigger">
                             <i className="fa fa-bars" />
                           </a>
                         </li>

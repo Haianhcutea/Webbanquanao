@@ -1,17 +1,20 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Button, Space, Table, Drawer, Form, Row, Col, Input, Select, Popconfirm, Tag } from "antd";
 import { PlusOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined } from "@ant-design/icons";
+
 import { openNotificationWithIcon, NotificationContext } from "@/App";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { formatCurrency } from "../../../../App";
+
 const OrdersAdmin = () => {
   const api = useContext(NotificationContext);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   //
   const [data, setData] = useState([]);
+
   const columns = [
     { title: "Id đơn hàng", dataIndex: "order_id", key: "order_id", ellipsis: true },
     { title: "Tên người nhận", dataIndex: "receiver_name", key: "receiver_name", ellipsis: true },
@@ -37,14 +40,17 @@ const OrdersAdmin = () => {
       ),
     },
   ];
+
   // hàm chạy lần đầu lấy data
   useEffect(() => {
     handleGetList();
   }, []);
+
   // lấy toàn bộ ds
   const handleGetList = async () => {
     try {
       const response = await axios.get(`http://localhost:5555/api/all-orders`);
+
       if (response.status === 200) {
         setData(response.data.orders);
         // lưu list category vào store
@@ -55,9 +61,11 @@ const OrdersAdmin = () => {
     } finally {
     }
   };
+
   const handleDetail = (data) => {
     navigate(`/admin/dashboard/orders/${data?.order_id}`, { state: { order: data } }); // Điều hướng đến route với orderId
   };
+
   // Định nghĩa hàm hiển thị `items` trong bảng mở rộng
   const expandedRowRender = (order) => {
     const itemColumns = [
@@ -78,8 +86,10 @@ const OrdersAdmin = () => {
         ),
       },
     ];
+
     return <Table columns={itemColumns} dataSource={order.items} pagination={false} rowKey="product_id" />;
   };
+
   return (
     <>
       <Table
@@ -92,4 +102,5 @@ const OrdersAdmin = () => {
     </>
   );
 };
+
 export default OrdersAdmin;
