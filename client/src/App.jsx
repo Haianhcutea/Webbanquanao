@@ -62,10 +62,11 @@ function App() {
     if (token && userInfor?.name) {
       dispatch(setUser(userInfor));
       // lưu danh sách categories khi có user
-      dispatch(fetchCategories());
+      
       dispatch(fetchCartDetailByUserID({ token, userId: userInfor._id }));
       dispatch(fetchAllOrderByUserId({ token, userId: userInfor._id }));
     }
+    dispatch(fetchCategories());
 
     // admin
     const tokenAdmin = localStorage.getItem("tokenAdmin");

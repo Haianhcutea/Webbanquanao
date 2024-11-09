@@ -59,7 +59,7 @@ const Login = () => {
             </div>
             <div className="col-sm-6 text-start text-sm-end">
               <Link to="/auth/register" className="forget-pass-link">
-                Dăng ký?
+                Đăng ký?
               </Link>
             </div>
             <div className="col-md-12">
