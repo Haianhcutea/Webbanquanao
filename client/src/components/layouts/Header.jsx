@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/auth";
 import { clearCartStore } from "../../store/cart";
+import { formatCurrency } from "../../App";
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -69,13 +70,8 @@ const Header = () => {
                     <li>
                       <Link to="/home">Trang chủ</Link>
                     </li>
-                    <li className="menu-item-has-children">
-                      <a>Sản phẩm</a>
-                      <ul className="sub-menu">
-                        <li>
-                          <Link to="/product">Danh sách sản phẩm</Link>
-                        </li>
-                      </ul>
+                    <li>
+                      <Link to="/product">Sản phẩm</Link>
                     </li>
                     <li>
                       <Link to="/order">Giỏ hàng</Link>
@@ -112,7 +108,7 @@ const Header = () => {
                                 {/* Lặp qua từng biến thể để hiển thị thông tin số lượng và giá */}
                                 {product.variant.map((variant, index) => (
                                   <p className="count" key={index}>
-                                    <span>{variant.quantity} x </span> ${variant.price} - Màu {variant.color} - Size: {variant.size}
+                                    <span>{variant.quantity} x </span> {formatCurrency(variant.price)} - Màu {variant.color} - Size: {variant.size}
                                   </p>
                                 ))}
                               </div>
@@ -124,7 +120,7 @@ const Header = () => {
                             <tbody>
                               <tr>
                                 <td className="text-start">Total :</td>
-                                <td className="text-end">{cartByUserID?.total_price}</td>
+                                <td className="text-end">{formatCurrency(cartByUserID?.total_price)}</td>
                               </tr>
                             </tbody>
                           </table>
