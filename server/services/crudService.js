@@ -41,12 +41,15 @@ const addDocument = async (Model, data) => {
   
       document.status = 'inactive';
       document.updated_at = Date.now();
+
+      console.log("check git",document);
   
       return await document.save();
     } catch (error) {
       throw new Error(`Error deleting document: ${error.message}`);
     }
   };
+
   
   module.exports = {
     addDocument,
