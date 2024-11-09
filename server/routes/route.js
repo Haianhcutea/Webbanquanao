@@ -1,29 +1,9 @@
 const express = require('express');
 const { registerUser, loginUser } = require('../controllers/authController');
-const {
-  addCategory,
-  getCategories,
-  updateCategory,
-  softDeleteCategory,
-} = require('../controllers/categoryController');
-const {
-  addProduct,
-  getProductById,
-  getProductsByCategory,
-  getAllProducts,
-  updateProduct,
-  softDeleteProduct,
-} = require('../controllers/productController');
+const { addCategory, getCategories, updateCategory, softDeleteCategory } = require('../controllers/categoryController');
+const { addProduct, getProductById, getProductsByCategory,  getAllProducts, updateProduct, softDeleteProduct } = require('../controllers/productController');
 const { addToCart, getCartDetails } = require('../controllers/cartController');
-const {
-  placeOrder,
-  getUserOrders,
-  getAllOrders,
-  updateOrder,
-  createZaloPayOrder,
-  handleZaloPayCallback,
-  checkOrderStatus,
-} = require('../controllers/orderController.js');
+const { placeOrder, getUserOrders, getAllOrders, updateOrder, createZaloPayOrder, handleZaloPayCallback, checkOrderStatus } = require('../controllers/orderController.js');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 const upload = require('../config/multerConfig'); // Cấu hình multer để upload file
@@ -36,6 +16,7 @@ router.post('/auth/register', registerUser);
 
 // Route đăng nhập người dùng
 router.post('/auth/login', loginUser);
+
 
 // QUẢN LÝ DANH MỤC
 // Route thêm danh mục mới
@@ -72,6 +53,8 @@ router.put('/product/update/:id', updateProduct);
 // Route xóa mềm sản phẩm
 router.delete('/product/delete/:id', softDeleteProduct);
 
+
+
 // GIỎ HÀNG - CART
 // Thêm giỏ hàng
 router.post('/add-to-cart', authMiddleware, addToCart);
@@ -79,12 +62,14 @@ router.post('/add-to-cart', authMiddleware, addToCart);
 // list giỏ hàng
 router.get('/cart', authMiddleware, getCartDetails);
 
-// ĐƠN HÀNG
-// đặt hàng
+// ĐƠN HÀNG 
+// đặt hàng  
 router.post('/place-order', authMiddleware, placeOrder);
 
-// đặt hàng
+
+// đặt hàng  
 router.post('/place-order-zalo', createZaloPayOrder);
+
 
 // Route callback ZaloPay
 router.post('/callback', handleZaloPayCallback);
@@ -102,3 +87,4 @@ router.get('/all-orders', getAllOrders);
 router.put('/order/:orderId', updateOrder);
 
 module.exports = router;
+
