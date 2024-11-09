@@ -41,7 +41,7 @@ const MainLayoutAdmin = () => {
 
     // đăng xuất
     if (e.key === "2") {
-      dispatch(logout());
+      handleLogout();
       navigate("/admin/login");
     }
   };

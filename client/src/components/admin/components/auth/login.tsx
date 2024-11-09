@@ -50,7 +50,7 @@ const LoginAdmin = () => {
             <Button type="primary" htmlType="submit" className="login-form-button">
               Log in
             </Button>
-            Or <Link to="/register">register now!</Link>
+
           </Form.Item>
         </Form>
       </Col>
