@@ -1,6 +1,9 @@
 const Cart = require('../models/cart');
 const Order = require('../models/order');
-
+const axios = require("axios");
+const crypto = require('crypto');
+const CryptoJS = require('crypto-js');
+const moment = require('moment');
 // Lấy toàn bộ đơn hàng
 const getAllOrders = async (req, res) => {
   try {
@@ -13,19 +16,19 @@ const getAllOrders = async (req, res) => {
 
     // Trả về danh sách đơn hàng
     res.status(200).json({
-      orders: orders.map(order => ({
+      orders: orders.map((order) => ({
         order_id: order._id,
         user_id: order.user_id,
-        items: order.items.map(item => ({
+        items: order.items.map((item) => ({
           product_id: item.product_id,
           name: item.name,
           img_url: item.img_url,
-          variants: item.variants.map(variant => ({
+          variants: item.variants.map((variant) => ({
             color: variant.color,
             size: variant.size,
             price: variant.price,
-            quantity: variant.quantity
-          }))
+            quantity: variant.quantity,
+          })),
         })),
         total_price: order.total_price,
         receiver_name: order.receiver_name,
@@ -36,12 +39,14 @@ const getAllOrders = async (req, res) => {
         status: order.status,
         payment_method: order.payment_method,
         created_at: order.created_at,
-        updated_at: order.updated_at
-      }))
+        updated_at: order.updated_at,
+      })),
     });
   } catch (error) {
     console.error('Error fetching all orders:', error.message);
-    res.status(500).json({ message: 'Error fetching all orders', error: error.message });
+    res
+      .status(500)
+      .json({ message: 'Error fetching all orders', error: error.message });
   }
 };
 
@@ -91,6 +96,131 @@ const placeOrder = async (req, res) => {
   }
 };
 
+// Cấu hình ZaloPay
+const config = {
+  app_id: "2553",
+  key1: "PcY4iZIKFCIdgZvA6ueMcMHHUbRLYjPL",
+  key2: "kLtgPl8HHhfvMuDHPwKfgfsY4Ydm9eIz",
+  endpoint: "https://sb-openapi.zalopay.vn/v2/create"
+};
+
+// Hàm tạo đơn hàng ZaloPay
+const createZaloPayOrder = async (req, res) => {
+  const { amount, description } = req.body;
+  const embed_data = { redirecturl: 'http://localhost:5555/api/' };
+  const items = [];
+  const transID = Math.floor(Math.random() * 1000000);
+  
+  const order = {
+    app_id: config.app_id,
+    app_trans_id: `${moment().format('YYMMDD')}_${transID}`, // Unique transaction ID
+    app_user: "user123",
+    app_time: Date.now(),
+    item: JSON.stringify(items),
+    embed_data: JSON.stringify(embed_data),
+    amount,
+    description: description || `Payment for order #${transID}`,
+    bank_code: '',
+    callback_url: 'https://breezy-forks-turn.loca.lt/callback'
+  };
+
+  // Chuỗi dữ liệu để tạo `MAC`
+  const data = `${config.app_id}|${order.app_trans_id}|${order.app_user}|${order.amount}|${order.app_time}|${order.embed_data}|${order.item}`;
+  order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+
+  try {
+    const response = await axios.post(config.endpoint, null, { params: order });
+    if (response.data.return_code === 1) {
+      res.status(200).json({
+        message: "Order created successfully",
+        orderDetails: {
+          app_id: order.app_id,
+          app_trans_id: order.app_trans_id,
+          amount: order.amount,
+          description: order.description,
+          paymentUrl: response.data.order_url,
+          app_time: order.app_time,
+          callback_url: order.callback_url,
+          embed_data: order.embed_data
+        }
+      });
+    } else {
+      res.status(400).json({ message: "Failed to create order", data: response.data });
+    }
+  } catch (error) {
+    console.error("Error creating ZaloPay order:", error.message);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+// Hàm xử lý callback từ ZaloPay
+const handleZaloPayCallback = (req, res) => {
+  let result = {};
+  try {
+    const dataStr = req.body.data;
+    const reqMac = req.body.mac;
+
+    // Log dữ liệu nhận được và `MAC` yêu cầu
+    console.log('Data received from callback:', dataStr);
+    console.log('MAC received from callback:', reqMac);
+
+    // Tạo MAC từ `dataStr` và `key2`
+    const mac = CryptoJS.HmacSHA256(dataStr, config.key2).toString();
+    console.log('Generated MAC =', mac);
+
+    if (reqMac !== mac) {
+      result.return_code = -1;
+      result.return_message = 'Invalid MAC';
+    } else {
+      const dataJson = JSON.parse(dataStr);
+      console.log(`Update order status to success for app_trans_id = ${dataJson.app_trans_id}`);
+      
+      // Cập nhật trạng thái đơn hàng thành công trong cơ sở dữ liệu
+      result.return_code = 1;
+      result.return_message = 'Success';
+    }
+  } catch (error) {
+    console.error("Callback error:", error.message);
+    result.return_code = 0; // ZaloPay sẽ callback lại nếu lỗi xảy ra
+    result.return_message = error.message;
+  }
+  res.json(result);
+};
+
+
+// Hàm kiểm tra trạng thái đơn hàng
+const checkOrderStatus = async (req, res) => {
+  const { app_trans_id } = req.body;
+
+  const postData = {
+    app_id: config.app_id,
+    app_trans_id
+  };
+
+  // Chuỗi dữ liệu để tạo `MAC`
+  const data = `${postData.app_id}|${postData.app_trans_id}|${config.key1}`;
+  postData.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+
+  const postConfig = {
+    method: 'post',
+    url: 'https://sb-openapi.zalopay.vn/v2/query',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    data: require('qs').stringify(postData),
+  };
+
+  try {
+    const response = await axios(postConfig);
+    console.log("Order status:", response.data);
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error checking order status:", error.message);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+
 // Lấy danh sách đơn hàng của người dùng
 const getUserOrders = async (req, res) => {
   const user_id = req.user._id; // Lấy user_id từ req.user (đã có middleware auth)
@@ -105,18 +235,18 @@ const getUserOrders = async (req, res) => {
 
     // Trả về danh sách đơn hàng
     res.status(200).json({
-      orders: orders.map(order => ({
+      orders: orders.map((order) => ({
         order_id: order._id,
-        items: order.items.map(item => ({
+        items: order.items.map((item) => ({
           product_id: item.product_id,
           name: item.name,
           img_url: item.img_url,
-          variants: item.variants.map(variant => ({
+          variants: item.variants.map((variant) => ({
             color: variant.color,
             size: variant.size,
             price: variant.price,
-            quantity: variant.quantity
-          }))
+            quantity: variant.quantity,
+          })),
         })),
         total_price: order.total_price,
         receiver_name: order.receiver_name,
@@ -126,20 +256,28 @@ const getUserOrders = async (req, res) => {
         note: order.note,
         status: order.status,
         created_at: order.created_at,
-        updated_at: order.updated_at
-      }))
+        updated_at: order.updated_at,
+      })),
     });
   } catch (error) {
     console.error('Error fetching orders:', error.message);
-    res.status(500).json({ message: 'Error fetching orders', error: error.message });
+    res
+      .status(500)
+      .json({ message: 'Error fetching orders', error: error.message });
   }
 };
-
 
 // Cập nhật thông tin đơn hàng
 const updateOrder = async (req, res) => {
   const { orderId } = req.params; // Lấy orderId từ params
-  const { receiver_name, receiver_phone, receiver_email, receiver_address, note, status } = req.body; // Lấy thông tin từ body
+  const {
+    receiver_name,
+    receiver_phone,
+    receiver_email,
+    receiver_address,
+    note,
+    status,
+  } = req.body; // Lấy thông tin từ body
 
   try {
     // Tìm đơn hàng theo ID
@@ -161,10 +299,14 @@ const updateOrder = async (req, res) => {
     // Lưu lại thay đổi
     const updatedOrder = await order.save();
 
-    res.status(200).json({ message: 'Order updated successfully', order: updatedOrder });
+    res
+      .status(200)
+      .json({ message: 'Order updated successfully', order: updatedOrder });
   } catch (error) {
     console.error('Error updating order:', error.message);
-    res.status(500).json({ message: 'Error updating order', error: error.message });
+    res
+      .status(500)
+      .json({ message: 'Error updating order', error: error.message });
   }
 };
 
@@ -172,5 +314,8 @@ module.exports = {
   placeOrder,
   getUserOrders,
   getAllOrders,
-  updateOrder
+  updateOrder,
+  createZaloPayOrder,
+  handleZaloPayCallback,
+  checkOrderStatus
 };
