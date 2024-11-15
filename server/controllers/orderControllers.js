@@ -5,6 +5,7 @@ const axios = require("axios");
 const crypto = require('crypto');
 const CryptoJS = require('crypto-js');
 const moment = require('moment');
+require('dotenv').config(); // Để sử dụng các biến từ .env
 // Lấy toàn bộ đơn hàng
 const getAllOrders = async (req, res) => {
   try {
@@ -143,7 +144,7 @@ const createZaloPayOrder = async (req, res) => {
       amount: cart.total_price,
       description: description || `Payment for order #${transID}`,
       bank_code: '', 
-      callback_url: 'https://thirty-shirts-search.loca.lt/callback',
+      callback_url: process.env.CALLBACK_URL || 'http://localhost:5555/api/callback'
     };
 
     // Tạo chuỗi dữ liệu để tạo `MAC`
