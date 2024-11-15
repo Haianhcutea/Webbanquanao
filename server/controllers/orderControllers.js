@@ -1,6 +1,7 @@
 const Cart = require('../models/cart');
 const Order = require('../models/order');
-const axios = require('axios');
+const PendingOrder = require('../models/PendingOrder');
+const axios = require("axios");
 const crypto = require('crypto');
 const CryptoJS = require('crypto-js');
 const moment = require('moment');
@@ -98,42 +99,78 @@ const placeOrder = async (req, res) => {
 
 // Cấu hình ZaloPay
 const config = {
-  app_id: '2553',
-  key1: 'PcY4iZIKFCIdgZvA6ueMcMHHUbRLYjPL',
-  key2: 'kLtgPl8HHhfvMuDHPwKfgfsY4Ydm9eIz',
-  endpoint: 'https://sb-openapi.zalopay.vn/v2/create',
+  app_id: "2553",
+  key1: "PcY4iZIKFCIdgZvA6ueMcMHHUbRLYjPL",
+  key2: "kLtgPl8HHhfvMuDHPwKfgfsY4Ydm9eIz",
+  endpoint: "https://sb-openapi.zalopay.vn/v2/create"
 };
 
-// Hàm tạo đơn hàng ZaloPay
+
 const createZaloPayOrder = async (req, res) => {
-  const { amount, description } = req.body;
+  const { description, receiver_name, receiver_phone, receiver_email, receiver_address, note, bank_code } = req.body;
   const embed_data = { redirecturl: 'http://localhost:5555/api/' };
-  const items = [];
   const transID = Math.floor(Math.random() * 1000000);
-
-  const order = {
-    app_id: config.app_id,
-    app_trans_id: `${moment().format('YYMMDD')}_${transID}`, // Unique transaction ID
-    app_user: 'user123',
-    app_time: Date.now(),
-    item: JSON.stringify(items),
-    embed_data: JSON.stringify(embed_data),
-    amount,
-    description: description || `Payment for order #${transID}`,
-    bank_code: '',
-    callback_url: 'https://breezy-forks-turn.loca.lt/callback',
-  };
-
-  // Chuỗi dữ liệu để tạo `MAC`
-  const data = `${config.app_id}|${order.app_trans_id}|${order.app_user}|${order.amount}|${order.app_time}|${order.embed_data}|${order.item}`;
-  order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+  const user_id = req.user._id;
 
   try {
+    // Lấy giỏ hàng của người dùng
+    const cart = await Cart.findOne({ user_id });
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: 'Your cart is empty' });
+    }
+
+    // Định dạng `items` cho đơn hàng tạm thời
+    const items = cart.items.map(item => ({
+      product_id: item.product_id,
+      name: item.name,
+      img_url: item.img_url,
+      variants: item.variants.map(variant => ({
+        color: variant.color,
+        size: variant.size,
+        price: variant.price,
+        quantity: variant.quantity,
+      }))
+    }));
+
+    // Tạo đơn hàng cho ZaloPay
+    const order = {
+      app_id: config.app_id,
+      app_trans_id: `${moment().format('YYMMDD')}_${transID}`, // ID giao dịch duy nhất
+      app_user: "user123",
+      app_time: Date.now(),
+      item: JSON.stringify(items),
+      embed_data: JSON.stringify(embed_data),
+      amount: cart.total_price,
+      description: description || `Payment for order #${transID}`,
+      bank_code: '', 
+      callback_url: 'https://thirty-shirts-search.loca.lt/callback',
+    };
+
+    // Tạo chuỗi dữ liệu để tạo `MAC`
+    const data = `${config.app_id}|${order.app_trans_id}|${order.app_user}|${order.amount}|${order.app_time}|${order.embed_data}|${order.item}`;
+    order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+
+    // Gửi yêu cầu tới ZaloPay
     const response = await axios.post(config.endpoint, null, { params: order });
+
     if (response.data.return_code === 1) {
+      // Lưu tạm thời đơn hàng vào cơ sở dữ liệu với trạng thái chờ thanh toán
+      await PendingOrder.create({
+        user_id,
+        transID: order.app_trans_id,
+        items: items, // Lưu các sản phẩm đã được định dạng
+        total_price: cart.total_price,
+        receiver_name,
+        receiver_phone,
+        receiver_email,
+        receiver_address,
+        note,
+      });
+
       res.status(200).json({
-        message: 'Order created successfully',
+        message: "Order created successfully",
         orderDetails: {
+          user_id,
           app_id: order.app_id,
           app_trans_id: order.app_trans_id,
           amount: order.amount,
@@ -145,17 +182,16 @@ const createZaloPayOrder = async (req, res) => {
         },
       });
     } else {
-      res
-        .status(400)
-        .json({ message: 'Failed to create order', data: response.data });
+      res.status(400).json({ message: "Failed to create order", data: response.data });
     }
   } catch (error) {
-    console.error('Error creating ZaloPay order:', error.message);
-    res
-      .status(500)
-      .json({ message: 'Internal Server Error', error: error.message });
+    console.error("Error creating ZaloPay order:", error.message);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
+
+
+
 
 const handleZaloPayCallback = (req, res) => {
   let result = {};
@@ -172,22 +208,21 @@ const handleZaloPayCallback = (req, res) => {
       result.return_message = 'Invalid MAC';
     } else {
       const dataJson = JSON.parse(dataStr);
-      console.log(
-        `Update order status to success for app_trans_id = ${dataJson.app_trans_id}`
-      );
-
+      console.log(`Update order status to success for app_trans_id = ${dataJson.app_trans_id}`);
+      
       // Cập nhật trạng thái đơn hàng thành công trong cơ sở dữ liệu
       result.return_code = 1;
       result.return_message = 'Success';
     }
   } catch (error) {
-    console.error('Callback error:', error.message);
+    console.error("Callback error:", error.message);
     result.return_code = 0;
     result.return_message = error.message;
   }
 
   res.json(result);
 };
+
 
 // Hàm kiểm tra trạng thái đơn hàng
 const checkOrderStatus = async (req, res) => {
@@ -213,15 +248,56 @@ const checkOrderStatus = async (req, res) => {
 
   try {
     const response = await axios(postConfig);
-    console.log('Order status:', response.data);
-    res.status(200).json(response.data);
+    console.log("Order status:", response.data);
+
+    // Kiểm tra trạng thái thanh toán thành công từ phản hồi của ZaloPay
+    if (response.data.return_code === 1 && response.data.zp_trans_id) {
+      // Truy vấn đơn hàng tạm thời trong PendingOrder
+      const pendingOrder = await PendingOrder.findOne({ transID: app_trans_id });
+
+      if (pendingOrder) {
+        // Tạo một đơn hàng mới trong bảng Order từ thông tin của PendingOrder
+        const newOrder = new Order({
+          user_id: pendingOrder.user_id,
+          items: pendingOrder.items,
+          total_price: pendingOrder.total_price,
+          receiver_name: pendingOrder.receiver_name,
+          receiver_phone: pendingOrder.receiver_phone,
+          receiver_email: pendingOrder.receiver_email,
+          receiver_address: pendingOrder.receiver_address,
+          payment_method: 'ZaloPay',
+          note: pendingOrder.note,
+        });
+
+        // Lưu đơn hàng vào bảng Order và xóa khỏi PendingOrder
+        await newOrder.save();
+        await PendingOrder.deleteOne({ transID: app_trans_id });
+
+        // Xóa giỏ hàng của người dùng
+        await Cart.deleteOne({ user_id: pendingOrder.user_id });
+
+        res.status(200).json({
+          message: "Order successfully processed and saved.",
+          order: newOrder,
+          zp_trans_id: response.data.zp_trans_id,
+        });
+      } else {
+        res.status(404).json({ message: "Pending order not found." });
+      }
+    } else {
+      res.status(400).json({
+        message: "Payment not successful or still pending.",
+        status: response.data,
+      });
+    }
   } catch (error) {
-    console.error('Error checking order status:', error.message);
-    res
-      .status(500)
-      .json({ message: 'Internal Server Error', error: error.message });
+    console.error("Error checking order status:", error.message);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
+
+
+
 
 // Lấy danh sách đơn hàng của người dùng
 const getUserOrders = async (req, res) => {
@@ -319,5 +395,5 @@ module.exports = {
   updateOrder,
   createZaloPayOrder,
   handleZaloPayCallback,
-  checkOrderStatus,
+  checkOrderStatus
 };
