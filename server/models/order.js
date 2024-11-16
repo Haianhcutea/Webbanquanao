@@ -20,6 +20,8 @@ const orderSchema = new mongoose.Schema({
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Liên kết tới người dùng
   items: [orderItemSchema], // Các sản phẩm và biến thể trong đơn hàng
   total_price: { type: Number, required: true }, // Tổng tiền của đơn hàng
+  discount: { type: Number, default: 0 }, // Giá trị giảm giá
+  coupon_code: { type: String, default: null }, // Mã giảm giá
   receiver_name: { type: String, required: true }, // Tên người nhận
   receiver_phone: { type: String, required: true }, // Số điện thoại người nhận
   receiver_email: { type: String, required: true }, // Email người nhận

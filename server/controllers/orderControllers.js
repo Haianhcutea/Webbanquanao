@@ -1,5 +1,8 @@
 const Cart = require('../models/cart');
 const Order = require('../models/order');
+
+const Coupon = require('../models/coupon');
+
 const PendingOrder = require('../models/PendingOrder');
 const axios = require("axios");
 const crypto = require('crypto');
@@ -60,6 +63,7 @@ const placeOrder = async (req, res) => {
     receiver_email,
     receiver_address,
     note,
+    coupon_code, // Mã giảm giá gửi từ client
   } = req.body;
 
   try {
@@ -69,11 +73,45 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ message: 'Your cart is empty' });
     }
 
+    let discount = 0; // Giá trị giảm giá ban đầu
+
+    // Kiểm tra mã giảm giá nếu được áp dụng
+    if (coupon_code) {
+      const coupon = await Coupon.findOne({ code: coupon_code, isActive: true });
+
+      if (!coupon) {
+        return res.status(400).json({ message: 'Invalid or expired coupon' });
+      }
+
+      if (new Date(coupon.expirationDate) < new Date()) {
+        return res.status(400).json({ message: 'Coupon has expired' });
+      }
+
+      if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+        return res.status(400).json({ message: 'Coupon usage limit reached' });
+      }
+
+      // Tính giá trị giảm giá
+      discount = Math.min(
+        (cart.total_price * coupon.discount) / 100, // Phần trăm giảm giá
+        coupon.maxDiscount // Giảm tối đa
+      );
+
+      // Tăng số lần sử dụng mã giảm giá
+      coupon.usedCount += 1;
+      await coupon.save();
+    }
+
+    // Tính tổng giá trị sau giảm giá
+    const finalPrice = cart.total_price - discount;
+
     // Tạo đơn hàng từ giỏ hàng
     const newOrder = new Order({
       user_id,
       items: cart.items, // Lấy các sản phẩm từ giỏ hàng
-      total_price: cart.total_price, // Tổng giá trị đơn hàng
+      total_price: finalPrice, // Tổng giá trị sau giảm giá
+      discount, // Giá trị giảm giá
+      coupon_code, // Mã giảm giá đã áp dụng
       receiver_name,
       receiver_phone,
       receiver_email,
@@ -98,6 +136,10 @@ const placeOrder = async (req, res) => {
   }
 };
 
+
+
+
+
 // Cấu hình ZaloPay
 const config = {
   app_id: "2553",
@@ -107,9 +149,99 @@ const config = {
 };
 
 
+
+// const createZaloPayOrder = async (req, res) => {
+//   const { description, receiver_name, receiver_phone, receiver_email, receiver_address, note, bank_code } = req.body;
+//   const embed_data = { redirecturl: 'http://localhost:5173/checkout-result' };
+//   const transID = Math.floor(Math.random() * 1000000);
+//   const user_id = req.user._id;
+
+//   try {
+//     // Lấy giỏ hàng của người dùng
+//     const cart = await Cart.findOne({ user_id });
+//     if (!cart || cart.items.length === 0) {
+//       return res.status(400).json({ message: 'Your cart is empty' });
+//     }
+
+//     // Định dạng `items` cho đơn hàng tạm thời
+//     const items = cart.items.map(item => ({
+//       product_id: item.product_id,
+//       name: item.name,
+//       img_url: item.img_url,
+//       variants: item.variants.map(variant => ({
+//         color: variant.color,
+//         size: variant.size,
+//         price: variant.price,
+//         quantity: variant.quantity,
+//       }))
+//     }));
+
+//     // Tạo đơn hàng cho ZaloPay
+//     const order = {
+//       app_id: config.app_id,
+//       app_trans_id: `${moment().format('YYMMDD')}_${transID}`, // ID giao dịch duy nhất
+//       app_user: "user123",
+//       app_time: Date.now(),
+//       item: JSON.stringify(items),
+//       embed_data: JSON.stringify(embed_data),
+//       amount: cart.total_price,
+//       description: description || `Payment for order #${transID}`,
+//       bank_code: '', 
+//       callback_url: process.env.CALLBACK_URL || 'http://localhost:5555/api/callback'
+//     };
+
+//     // Tạo chuỗi dữ liệu để tạo `MAC`
+//     const data = `${config.app_id}|${order.app_trans_id}|${order.app_user}|${order.amount}|${order.app_time}|${order.embed_data}|${order.item}`;
+//     order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+
+//     // Gửi yêu cầu tới ZaloPay
+//     const response = await axios.post(config.endpoint, null, { params: order });
+
+//     if (response.data.return_code === 1) {
+//       // Lưu tạm thời đơn hàng vào cơ sở dữ liệu với trạng thái chờ thanh toán
+//       await PendingOrder.create({
+//         user_id,
+//         transID: order.app_trans_id,
+//         items: items, // Lưu các sản phẩm đã được định dạng
+//         total_price: cart.total_price,
+//         receiver_name,
+//         receiver_phone,
+//         receiver_email,
+//         receiver_address,
+//         note,
+//       });
+
+//       res.status(200).json({
+//         message: "Order created successfully",
+//         orderDetails: {
+//           user_id,
+//           app_id: order.app_id,
+//           app_trans_id: order.app_trans_id,
+//           amount: order.amount,
+//           description: order.description,
+//           paymentUrl: response.data.order_url,
+//           app_time: order.app_time,
+//           callback_url: order.callback_url,
+//           embed_data: order.embed_data,
+//         },
+//       });
+//     } else {
+//       res.status(400).json({ message: "Failed to create order", data: response.data });
+//     }
+//   } catch (error) {
+//     console.error("Error creating ZaloPay order:", error.message);
+//     res.status(500).json({ message: "Internal Server Error", error: error.message });
+//   }
+// };
+
+
+const createZaloPayOrder = async (req, res) => {
+  const { description, receiver_name, receiver_phone, receiver_email, receiver_address, note, coupon_code } = req.body;
+  const embed_data = { redirecturl: 'http://localhost:5173/checkout-result' };
 const createZaloPayOrder = async (req, res) => {
   const { description, receiver_name, receiver_phone, receiver_email, receiver_address, note, bank_code } = req.body;
   const embed_data = { redirecturl: 'http://localhost:5555/api/' };
+
   const transID = Math.floor(Math.random() * 1000000);
   const user_id = req.user._id;
 
@@ -120,6 +252,39 @@ const createZaloPayOrder = async (req, res) => {
       return res.status(400).json({ message: 'Your cart is empty' });
     }
 
+
+    let discount = 0; // Giá trị giảm giá ban đầu
+
+    // Kiểm tra mã giảm giá nếu được áp dụng
+    if (coupon_code) {
+      const coupon = await Coupon.findOne({ code: coupon_code, isActive: true });
+
+      if (!coupon) {
+        return res.status(400).json({ message: 'Invalid or expired coupon' });
+      }
+
+      if (new Date(coupon.expirationDate) < new Date()) {
+        return res.status(400).json({ message: 'Coupon has expired' });
+      }
+
+      if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+        return res.status(400).json({ message: 'Coupon usage limit reached' });
+      }
+
+      // Tính giá trị giảm giá
+      discount = Math.min(
+        (cart.total_price * coupon.discount) / 100,
+        coupon.maxDiscount
+      );
+
+      // Tăng số lần sử dụng mã giảm giá
+      coupon.usedCount += 1;
+      await coupon.save();
+    }
+
+    // Tổng giá trị sau giảm giá
+    const finalPrice = cart.total_price - discount;
+=======
     // Định dạng `items` cho đơn hàng tạm thời
     const items = cart.items.map(item => ({
       product_id: item.product_id,
@@ -133,17 +298,26 @@ const createZaloPayOrder = async (req, res) => {
       }))
     }));
 
+
     // Tạo đơn hàng cho ZaloPay
     const order = {
       app_id: config.app_id,
       app_trans_id: `${moment().format('YYMMDD')}_${transID}`, // ID giao dịch duy nhất
       app_user: "user123",
       app_time: Date.now(),
+
+      item: JSON.stringify(cart.items),
+      embed_data: JSON.stringify(embed_data),
+      amount: finalPrice, // Sử dụng tổng giá sau giảm giá
+      description: description || `Payment for order #${transID}`,
+      bank_code: '',
+=======
       item: JSON.stringify(items),
       embed_data: JSON.stringify(embed_data),
       amount: cart.total_price,
       description: description || `Payment for order #${transID}`,
       bank_code: '', 
+
       callback_url: process.env.CALLBACK_URL || 'http://localhost:5555/api/callback'
     };
 
@@ -159,8 +333,15 @@ const createZaloPayOrder = async (req, res) => {
       await PendingOrder.create({
         user_id,
         transID: order.app_trans_id,
+
+        items: cart.items, // Lưu các sản phẩm đã được định dạng
+        total_price: finalPrice, // Tổng giá trị sau giảm giá
+        discount, // Giá trị giảm giá
+        coupon_code, // Mã giảm giá đã áp dụng
+
         items: items, // Lưu các sản phẩm đã được định dạng
         total_price: cart.total_price,
+
         receiver_name,
         receiver_phone,
         receiver_email,
@@ -262,6 +443,11 @@ const checkOrderStatus = async (req, res) => {
           user_id: pendingOrder.user_id,
           items: pendingOrder.items,
           total_price: pendingOrder.total_price,
+
+          discount: pendingOrder.discount, // Giá trị giảm giá
+          coupon_code: pendingOrder.coupon_code, // Mã giảm giá đã áp dụng
+
+
           receiver_name: pendingOrder.receiver_name,
           receiver_phone: pendingOrder.receiver_phone,
           receiver_email: pendingOrder.receiver_email,
@@ -397,4 +583,8 @@ module.exports = {
   createZaloPayOrder,
   handleZaloPayCallback,
   checkOrderStatus
+
 };
+
+};
+
