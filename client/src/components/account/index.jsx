@@ -1,4 +1,5 @@
 /** @format */
+
 import React, { useState } from "react";
 import Breadcumb from "../layouts/breadcumb";
 import { useDispatch, useSelector } from "react-redux";
@@ -98,14 +99,21 @@ const MyAccount = () => {
                                 )
                               </p>
                             </div>
-                            <p className="mb-0">Từ bảng điều khiển tài khoản của bạn. bạn có thể dễ dàng kiểm tra &amp; và xem các đơn đặt hàng gần đây của mình,
-                               quản lý địa chỉ giao hàng và thanh toán cũng như chỉnh sửa chi tiết mật khẩu và tài khoản của mình.</p>
+                            <p className="mb-0">Từ bảng điều khiển tài khoản của bạn. bạn có thể dễ dàng kiểm tra &amp; và xem các đơn đặt hàng gần đây của mình, quản lý địa chỉ giao hàng và thanh toán cũng như chỉnh sửa chi tiết mật khẩu và tài khoản của mình.</p>
                           </div>
                         </div>
                         {/* Single Tab Content End */}
                         {/* Single Tab Content Start */}
                         <div className="tab-pane fade" id="orders" role="tabpanel">
-                        <DonHang activeTab={activeTab}/>     
+                          <DonHang activeTab={activeTab}/>
+                        </div>
+                        {/* Single Tab Content End */}
+                        {/* Single Tab Content Start */}
+                        <div className="tab-pane fade" id="payment-method" role="tabpanel">
+                          <div className="myaccount-content">
+                            <h3>Phương thức thanh toán</h3>
+                            <p className="saved-message">Bạn chưa thể lưu phương thức thanh toán của mình.</p>
+                          </div>
                         </div>
                         {/* Single Tab Content End */}
                         {/* Single Tab Content Start */}
@@ -214,5 +222,5 @@ const MyAccount = () => {
     </div>
   );
 };
-
+//tesst
 export default MyAccount;

@@ -11,7 +11,7 @@ import axios from "axios";
 const CheckoutResult = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+//
   const [data, setData] = useState(null);
   const token = localStorage.getItem("token");
   const userInfor = JSON.parse(localStorage.getItem("user"));

@@ -1,19 +1,23 @@
 /** @format */
+
 import React, { useEffect, useState } from "react";
 import { formatCurrency } from "../../App";
 import { useSelector } from "react-redux";
 import { Tag } from "antd";
 import axios from "axios";
+
 const DonHang = (props) => {
   const { activeTab } = props;
   const cartPayment = useSelector((state) => state.cart.cartPayment);
   const [data, setData] = useState([]);
   console.log(activeTab, "activeTab");
+
   useEffect(() => {
     if (activeTab === "orders") {
       handleGetCartByProducrIdPayment(); // Chỉ gọi API khi tab là "Đơn hàng"
     }
   }, [activeTab]);
+
   const handleGetCartByProducrIdPayment = async () => {
     try {
       const payload = {
@@ -22,6 +26,7 @@ const DonHang = (props) => {
       };
       const res = await axios.post(`http://localhost:5555/api/check-status-order`, payload);
       console.log(res);
+
       if (res.status === 200) {
         const { data } = res.data;
         console.log("data", data);
@@ -29,6 +34,7 @@ const DonHang = (props) => {
       }
     } catch (error) {}
   };
+
   return (
     <div className="myaccount-content">
       <h3>Danh sách đơn hàng</h3>
@@ -61,4 +67,5 @@ const DonHang = (props) => {
     </div>
   );
 };
+//
 export default DonHang;

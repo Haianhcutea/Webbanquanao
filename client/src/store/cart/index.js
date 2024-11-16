@@ -39,7 +39,6 @@ const initialState = {
   orderData: [],
   cartPayment: null,
 };
-
 const cartProductSlice = createSlice({
   name: "cart",
   initialState,
@@ -65,6 +64,5 @@ const cartProductSlice = createSlice({
     });
   },
 });
-
 export const { clearCartStore, addCartPayment } = cartProductSlice.actions;
 export default cartProductSlice.reducer;
