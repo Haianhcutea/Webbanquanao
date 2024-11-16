@@ -1,17 +1,22 @@
+/** @format */
+
 import React, { useContext } from "react";
 import Breadcumb from "../layouts/breadcumb";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Button, Form, Input, Radio } from "antd";
 import { formatCurrency, NotificationContext, openNotificationWithIcon } from "../../App";
 import axios from "axios";
+import { addCartPayment } from "../../store/cart";
 
 const Checkout = () => {
   const api = useContext(NotificationContext);
   const token = localStorage.getItem("token");
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const cartByUserID = useSelector((state) => state.cart);
+
+  console.log(cartByUserID, "111");
 
   const [formCheckout] = Form.useForm();
 
@@ -19,35 +24,60 @@ const Checkout = () => {
     formCheckout
       .validateFields()
       .then(async (values) => {
-        // Giả sử token được lưu trong localStorage
-        const token = localStorage.getItem("token"); 
-  
-        const response = await axios.post(
-          `http://localhost:5555/api/place-order`, 
-          values,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`, // Thêm token vào headers
-            },
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          openNotificationWithIcon(api, "error", "Authentication Failed", "Please log in to place an order.");
+          return;
+        }
+
+        try {
+          let response;
+          if (values.bank_code === "cod") {
+            response = await axios.post(
+              `http://localhost:5555/api/place-order`,
+              { ...values },
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+
+            if (response.status === 201) {
+              openNotificationWithIcon(api, "success", "Order Successful", "You have successfully placed an order!");
+              formCheckout.resetFields();
+              navigate("/checkout-result");
+            }
+          } else if (values.bank_code === "zalopayapp") {
+            response = await axios.post(
+              `http://localhost:5555/api/place-order-zalo`,
+              { ...values, amount: cartByUserID?.total_price },
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+
+            if (response.status === 200) {
+              openNotificationWithIcon(api, "success", "Order Successful", "You have successfully placed an order!");
+              // Lưu response vào localStorage để có thể lấy lại sau khi quay lại trang
+              localStorage.setItem("cartPayment", JSON.stringify(response.data));
+              const paymentUrl = response.data.orderDetails.paymentUrl;
+              if (paymentUrl) {
+                window.location.href = paymentUrl; // Redirect to ZaloPay
+              }
+              formCheckout.resetFields();
+            }
           }
-        );
-  
-        if (response.status === 201) {
-          openNotificationWithIcon(api, "success", "Order Successful", "You have successfully placed an order!");
-          formCheckout.resetFields();
-          navigate("/home");
-  
-          if (values.payment_method === "cod") {
-            navigate("/checkout-result");
-          }
+        } catch (error) {
+          console.error("Error occurred:", error);
+          openNotificationWithIcon(api, "error", "Order Failed", "There was an issue placing your order. Please try again.");
         }
       })
       .catch((err) => {
-        console.error("Error occurred:", err);
+        console.error("Validation Error:", err);
         openNotificationWithIcon(api, "error", "Order Failed", "Please check your values.");
       });
   };
-  
+
   return (
     <div>
       <Breadcumb parentTitle={"Trang chủ"} title={"Thanh toán"} />
@@ -73,10 +103,7 @@ const Checkout = () => {
                               </Form.Item>
                             </div>
                             <div className="col-md-6 col-md-12">
-                              <Form.Item
-                                name="receiver_phone"
-                                label="Số điện thoại người nhận"
-                                rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}>
+                              <Form.Item name="receiver_phone" label="Số điện thoại người nhận" rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}>
                                 <Input placeholder="Số điện thoại người nhận" />
                               </Form.Item>
                             </div>
@@ -86,11 +113,13 @@ const Checkout = () => {
                               </Form.Item>
                             </div>
                             <div className="col-md-6 col-md-12">
-                              <Form.Item
-                                name="receiver_address"
-                                label="Địa chỉ người nhận"
-                                rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}>
+                              <Form.Item name="receiver_address" label="Địa chỉ người nhận" rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}>
                                 <Input placeholder="Địa chỉ người nhận" />
+                              </Form.Item>
+                            </div>
+                            <div className="col-md-6 col-md-12">
+                              <Form.Item name="description" label="Mô tả">
+                                <Input placeholder="Mô tả" />
                               </Form.Item>
                             </div>
                             <div className="col-md-6 col-md-12">
@@ -117,38 +146,24 @@ const Checkout = () => {
                           </ul>
 
                           <p>
-                            Tổng tiền{" "}
-                            <span>
-                              {formatCurrency(cartByUserID.cartData.reduce(
-                                (total, product) =>
-                                  total + product.variant.reduce((subtotal, variant) => subtotal + variant.price * variant.quantity, 0),
-                                0
-                              ))}
-                            </span>
+                            Tổng tiền <span>{formatCurrency(cartByUserID.cartData.reduce((total, product) => total + product.variant.reduce((subtotal, variant) => subtotal + variant.price * variant.quantity, 0), 0))}</span>
                           </p>
                           <p>
                             Phí ship <span>30.000</span>
                           </p>
                           <h4>
-                            Tổng cộng{" "}
-                            <span>
-                              {formatCurrency(cartByUserID.cartData.reduce(
-                                (total, product) =>
-                                  total + product.variant.reduce((subtotal, variant) => subtotal + variant.price * variant.quantity, 0),
-                                0
-                              ))}
-                            </span>
+                            Tổng cộng <span>{formatCurrency(cartByUserID.cartData.reduce((total, product) => total + product.variant.reduce((subtotal, variant) => subtotal + variant.price * variant.quantity, 0), 0))}</span>
                           </h4>
                         </div>
 
                         {/* Payment Method */}
                         <div className="checkout-payment-method">
                           <h4 className="checkout-title">Phương thức thanh toán</h4>
-                          <Form.Item name="payment_method" rules={[{ required: true, message: "Vui lòng chọn phương thức thanh toán" }]}>
+                          <Form.Item name="bank_code" rules={[{ required: true, message: "Vui lòng chọn phương thức thanh toán" }]}>
                             <Radio.Group>
                               <Radio value="cod">COD</Radio>
                               <Radio value="momo">MoMo</Radio>
-                              <Radio value="vnpay">VNPay</Radio>
+                              <Radio value="zalopayapp">Zalo Pay</Radio>
                             </Radio.Group>
                           </Form.Item>
                         </div>
