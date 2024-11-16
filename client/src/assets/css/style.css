@@ -7614,3 +7614,10 @@ h3.comment-counter {
 }
 
 /*=====  End of Blog  ======*/
+.slick-prev:before, .slick-next:before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #212121 !important;
+}

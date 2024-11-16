@@ -298,14 +298,14 @@ const ProductDetail = () => {
                                 <a className="cart-btn" onClick={() => handleAddCart()}>
                                   <i className="ion-bag" /> Thêm giỏ hàng
                                 </a>
-                                <span className="wishlist-compare-btn">
+                                {/* <span className="wishlist-compare-btn">
                                   <a>
                                     <i className="ion-heart" />
                                   </a>
                                   <a>
                                     <i className="ion-android-options" />
                                   </a>
-                                </span>
+                                </span> */}
                               </div>
                             </div>
                           )}
@@ -498,5 +498,6 @@ const ProductDetail = () => {
     </div>
   );
 };
+//
 
 export default ProductDetail;
