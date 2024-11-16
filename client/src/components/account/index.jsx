@@ -1,4 +1,5 @@
-import React from "react";
+/** @format */
+import React, { useState } from "react";
 import Breadcumb from "../layouts/breadcumb";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/auth";
@@ -6,14 +7,14 @@ import { useNavigate } from "react-router-dom";
 import { clearCartStore } from "../../store/cart";
 import { Form, Input, Button, Tag } from "antd";
 import { formatCurrency } from "../../App";
+import DonHang from "./DonHang";
 
 const MyAccount = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const orderByUserID = useSelector((state) => state.cart.orderData);
-
   const userInfor = JSON.parse(localStorage.getItem("user")) ?? "";
+  const [activeTab, setActiveTab] = useState("dashboad");
 
   const [form] = Form.useForm();
 
@@ -34,11 +35,21 @@ const MyAccount = () => {
                     {/* My Account Tab Menu Start */}
                     <div className="col-lg-3 col-12">
                       <div className="myaccount-tab-menu nav" role="tablist">
-                        <a href="#dashboad" className="active" data-bs-toggle="tab">
+                      <a
+          href="#dashboad"
+          className={activeTab === "dashboad" ? "active" : ""}
+          data-bs-toggle="tab"
+          onClick={() => setActiveTab("dashboad")}
+        >
                           <i className="fa fa-dashboard" />
                           Tổng quan
                         </a>
-                        <a href="#orders" data-bs-toggle="tab">
+                        <a
+          href="#orders"
+          data-bs-toggle="tab"
+          className={activeTab === "orders" ? "active" : ""}
+          onClick={() => setActiveTab("orders")}
+        >
                           <i className="fa fa-cart-arrow-down" />
                           Đơn hàng
                         </a>
@@ -87,54 +98,14 @@ const MyAccount = () => {
                                 )
                               </p>
                             </div>
-                            <p className="mb-0">
-                              Từ bảng điều khiển tài khoản của bạn. bạn có thể dễ dàng kiểm tra &amp; và xem các đơn đặt hàng gần đây của mình, quản
-                              lý địa chỉ giao hàng và thanh toán cũng như chỉnh sửa chi tiết mật khẩu và tài khoản của mình.
-                            </p>
+                            <p className="mb-0">Từ bảng điều khiển tài khoản của bạn. bạn có thể dễ dàng kiểm tra &amp; và xem các đơn đặt hàng gần đây của mình,
+                               quản lý địa chỉ giao hàng và thanh toán cũng như chỉnh sửa chi tiết mật khẩu và tài khoản của mình.</p>
                           </div>
                         </div>
                         {/* Single Tab Content End */}
                         {/* Single Tab Content Start */}
                         <div className="tab-pane fade" id="orders" role="tabpanel">
-                          <div className="myaccount-content">
-                            <h3>Danh sách đơn hàng</h3>
-                            <div className="myaccount-table table-responsive text-center">
-                              <table className="table table-bordered">
-                                <thead className="thead-light">
-                                  <tr>
-                                    <th>STT</th>
-                                    <th>Tên</th>
-                                    <th>Ngày</th>
-                                    <th>Trạng thái</th>
-                                    <th>Tổng cộng</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {orderByUserID?.map((order, index) => (
-                                    <tr key={index}>
-                                      <td>{index + 1}</td>
-                                      <td>{order.receiver_name}</td>
-                                      <td> {new Date(order.created_at).toLocaleString()}</td>
-                                      <td>
-                                        <Tag color={order.status === "pending" ? "orange" : order.status === "completed" ? "green" : "red"}>
-                                          {order.status.toUpperCase()}
-                                        </Tag>
-                                      </td>
-                                      <td>{formatCurrency(order.total_price)}</td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        </div>
-                        {/* Single Tab Content End */}
-                        {/* Single Tab Content Start */}
-                        <div className="tab-pane fade" id="payment-method" role="tabpanel">
-                          <div className="myaccount-content">
-                            <h3>Phương thức thanh toán</h3>
-                            <p className="saved-message">Bạn chưa thể lưu phương thức thanh toán của mình.</p>
-                          </div>
+                        <DonHang activeTab={activeTab}/>     
                         </div>
                         {/* Single Tab Content End */}
                         {/* Single Tab Content Start */}
