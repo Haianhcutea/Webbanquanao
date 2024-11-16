@@ -1,6 +1,8 @@
 const Cart = require('../models/cart');
 const Order = require('../models/order');
+
 const Coupon = require('../models/coupon');
+
 const PendingOrder = require('../models/PendingOrder');
 const axios = require("axios");
 const crypto = require('crypto');
@@ -136,12 +138,16 @@ const placeOrder = async (req, res) => {
 
 
 
+
+
+// Cấu hình ZaloPay
 const config = {
   app_id: "2553",
   key1: "PcY4iZIKFCIdgZvA6ueMcMHHUbRLYjPL",
   key2: "kLtgPl8HHhfvMuDHPwKfgfsY4Ydm9eIz",
   endpoint: "https://sb-openapi.zalopay.vn/v2/create"
 };
+
 
 
 // const createZaloPayOrder = async (req, res) => {
@@ -232,6 +238,10 @@ const config = {
 const createZaloPayOrder = async (req, res) => {
   const { description, receiver_name, receiver_phone, receiver_email, receiver_address, note, coupon_code } = req.body;
   const embed_data = { redirecturl: 'http://localhost:5173/checkout-result' };
+const createZaloPayOrder = async (req, res) => {
+  const { description, receiver_name, receiver_phone, receiver_email, receiver_address, note, bank_code } = req.body;
+  const embed_data = { redirecturl: 'http://localhost:5555/api/' };
+
   const transID = Math.floor(Math.random() * 1000000);
   const user_id = req.user._id;
 
@@ -241,6 +251,7 @@ const createZaloPayOrder = async (req, res) => {
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ message: 'Your cart is empty' });
     }
+
 
     let discount = 0; // Giá trị giảm giá ban đầu
 
@@ -273,6 +284,20 @@ const createZaloPayOrder = async (req, res) => {
 
     // Tổng giá trị sau giảm giá
     const finalPrice = cart.total_price - discount;
+=======
+    // Định dạng `items` cho đơn hàng tạm thời
+    const items = cart.items.map(item => ({
+      product_id: item.product_id,
+      name: item.name,
+      img_url: item.img_url,
+      variants: item.variants.map(variant => ({
+        color: variant.color,
+        size: variant.size,
+        price: variant.price,
+        quantity: variant.quantity,
+      }))
+    }));
+
 
     // Tạo đơn hàng cho ZaloPay
     const order = {
@@ -280,11 +305,19 @@ const createZaloPayOrder = async (req, res) => {
       app_trans_id: `${moment().format('YYMMDD')}_${transID}`, // ID giao dịch duy nhất
       app_user: "user123",
       app_time: Date.now(),
+
       item: JSON.stringify(cart.items),
       embed_data: JSON.stringify(embed_data),
       amount: finalPrice, // Sử dụng tổng giá sau giảm giá
       description: description || `Payment for order #${transID}`,
       bank_code: '',
+=======
+      item: JSON.stringify(items),
+      embed_data: JSON.stringify(embed_data),
+      amount: cart.total_price,
+      description: description || `Payment for order #${transID}`,
+      bank_code: '', 
+
       callback_url: process.env.CALLBACK_URL || 'http://localhost:5555/api/callback'
     };
 
@@ -300,10 +333,15 @@ const createZaloPayOrder = async (req, res) => {
       await PendingOrder.create({
         user_id,
         transID: order.app_trans_id,
+
         items: cart.items, // Lưu các sản phẩm đã được định dạng
         total_price: finalPrice, // Tổng giá trị sau giảm giá
         discount, // Giá trị giảm giá
         coupon_code, // Mã giảm giá đã áp dụng
+
+        items: items, // Lưu các sản phẩm đã được định dạng
+        total_price: cart.total_price,
+
         receiver_name,
         receiver_phone,
         receiver_email,
@@ -405,8 +443,11 @@ const checkOrderStatus = async (req, res) => {
           user_id: pendingOrder.user_id,
           items: pendingOrder.items,
           total_price: pendingOrder.total_price,
+
           discount: pendingOrder.discount, // Giá trị giảm giá
           coupon_code: pendingOrder.coupon_code, // Mã giảm giá đã áp dụng
+
+
           receiver_name: pendingOrder.receiver_name,
           receiver_phone: pendingOrder.receiver_phone,
           receiver_email: pendingOrder.receiver_email,
@@ -542,4 +583,8 @@ module.exports = {
   createZaloPayOrder,
   handleZaloPayCallback,
   checkOrderStatus
+
 };
+
+};
+

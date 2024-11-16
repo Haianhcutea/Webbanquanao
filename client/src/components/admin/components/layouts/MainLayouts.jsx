@@ -17,6 +17,7 @@ function getItem(label, key, icon, children) {
 const items = [
   getItem("Q.lý danh mục", "1", <PieChartOutlined />),
   getItem("Q.lý sản phẩm", "2", <DesktopOutlined />),
+  getItem("Q.lý đơn hàng", "3", <DesktopOutlined />),
 ];
 
 const MainLayoutAdmin = () => {
@@ -29,7 +30,7 @@ const MainLayoutAdmin = () => {
   const user = useSelector((state) => state.authAdmin.user);
 
   const [collapsed, setCollapsed] = useState(false);
-
+  const [title, setTitle] = useState("Q.lý danh mục");
   const handleLogout = () => {
     dispatch(logoutAdmin());
     navigate("/admin/login");
@@ -66,8 +67,13 @@ const MainLayoutAdmin = () => {
   const handleMenuClick = (e) => {
     if (e.key === "1") {
       navigate("/admin/dashboard/categories");
+      setTitle("Q.Lý Danh mục");
     } else if (e.key === "2") {
       navigate("/admin/dashboard/products"); 
+      setTitle("Q.Lý Sản phẩm");
+    } else if (e.key === "3") {
+      navigate("/admin/dashboard/orders"); 
+      setTitle("Q.Lý Đơn hàng");
     } 
   };
 
@@ -89,8 +95,12 @@ const MainLayoutAdmin = () => {
             justifyContent: "space-between",
             alignItems: "center",
             paddingRight: "32px",
+            paddingLeft: "24px",
             marginBottom: "24px"
           }}>
+                <div className="d-flex w-100 ">
+          <h3>{title}</h3>
+          </div>
           {/* Dropdown show tên user */}
           <Dropdown.Button
             menu={menuProps}
