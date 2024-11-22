@@ -1,27 +1,17 @@
-import {
-  Card,
-  Col,
-  Descriptions,
-  Row,
-  Table,
-  Tag,
-  Button,
-  Modal,
-  Form,
-  Input,
-  Select,
-} from "antd";
+/** @format */
+
+import { Card, Col, Descriptions, Row, Table, Tag, Button, Modal, Form, Input, Select } from "antd";
 import React, { useContext, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import {
-  formatCurrency,
-  NotificationContext,
-  openNotificationWithIcon,
-} from "../../../../App";
+import { formatCurrency, NotificationContext, openNotificationWithIcon } from "../../../../App";
+import { useSelector } from "react-redux";
 
 const OrderDetailAdmin = () => {
   const api = useContext(NotificationContext);
+  const orderStatus = useSelector((state) => state.cart.orderStatus);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const tokenAdmin = localStorage.getItem("tokenAdmin");
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,12 +22,7 @@ const OrderDetailAdmin = () => {
   }
 
   // Thiết lập màu cho trạng thái
-  const statusColor =
-    order.status === "pending"
-      ? "orange"
-      : order.status === "completed"
-      ? "green"
-      : "red";
+  const statusColor = order.status === "pending" ? "orange" : order.status === "completed" ? "green" : "red";
 
   // Cấu trúc dữ liệu bảng sản phẩm
   const productColumns = [
@@ -46,13 +31,7 @@ const OrderDetailAdmin = () => {
       title: "Ảnh",
       dataIndex: "img_url",
       key: "img_url",
-      render: (url) => (
-        <img
-          src={`http://localhost:5555${url}`}
-          alt="product"
-          style={{ width: 32 }}
-        />
-      ),
+      render: (url) => <img src={`http://localhost:5555${url}`} alt="product" style={{ width: 32 }} />,
     },
     {
       title: "Biến thể",
@@ -61,8 +40,7 @@ const OrderDetailAdmin = () => {
         <ul>
           {record.variants.map((variant, idx) => (
             <li key={idx}>
-              Màu: {variant.color}, Size: {variant.size}, Giá: {variant.price}{" "}
-              VNĐ, SL: {variant.quantity}
+              Màu: {variant.color}, Size: {variant.size}, Giá: {variant.price} VNĐ, SL: {variant.quantity}
             </li>
           ))}
         </ul>
@@ -95,21 +73,16 @@ const OrderDetailAdmin = () => {
   // Hàm xử lý chỉnh sửa thông tin
   const handleEditSubmit = async (values) => {
     try {
-      const response = await axios.put(
-        `http://localhost:5555/api/order/${order.order_id}`,
-        {
-          ...values,
-          user_id: order.user_id, // Giữ nguyên user_id
-        }
-      );
+      const response = await axios.put(`http://localhost:5555/api/order/${order.order_id}`, {
+        ...values,
+        user_id: order.user_id, // Giữ nguyên user_id
+      },
+      {
+        headers: { Authorization: `Bearer ${tokenAdmin}` },
+      });
 
       if (response.status === 200) {
-        openNotificationWithIcon(
-          api,
-          "success",
-          "Cập nhật đơn hàng thành công",
-          "Cập nhật đơn hàng thành công!"
-        );
+        openNotificationWithIcon(api, "success", "Cập nhật đơn hàng thành công", "Cập nhật đơn hàng thành công!");
         setIsModalVisible(false);
         navigate("/admin/dashboard/orders");
       }
@@ -119,6 +92,48 @@ const OrderDetailAdmin = () => {
     }
   };
 
+  // Tạo một hàm để ánh xạ trạng thái đơn hàng thành tên và màu sắc phù hợp
+  const getStatusTag = (status) => {
+    const statusData = orderStatus.find((item) => item.englishName === status);
+    if (statusData) {
+      let color;
+      switch (statusData.englishName) {
+        case "Pending":
+          color = "orange";
+          break;
+        case "Confirmed":
+          color = "blue";
+          break;
+        case "Paid":
+          color = "green";
+          break;
+        case "Preparing":
+          color = "yellow";
+          break;
+        case "Transit":
+          color = "geekblue";
+          break;
+        case "Delivered":
+          color = "green";
+          break;
+        case "Received":
+          color = "purple";
+          break;
+        case "Completed":
+          color = "success";
+          break;
+        case "Canceled":
+          color = "red";
+          break;
+        default:
+          color = "default";
+          break;
+      }
+      return <Tag color={color}>{statusData.name}</Tag>;
+    }
+    return null;
+  };
+
   return (
     <div>
       <h4 className="mb-3">Chi tiết Đơn hàng</h4>
@@ -126,48 +141,28 @@ const OrderDetailAdmin = () => {
       {/* Row 1: Thông tin người đặt và người nhận */}
       <Row gutter={16}>
         <Col span={8}>
-          <Card
-            title="Thông tin người đặt"
-            bodyStyle={{ padding: "10px" }}
-            headStyle={{ padding: "0 16px", minHeight: 38 }}
-          >
+          <Card title="Thông tin người đặt" bodyStyle={{ padding: "10px" }} headStyle={{ padding: "0 16px", minHeight: 38 }}>
             <Descriptions column={1} bordered>
-              <Descriptions.Item
-                style={{ padding: "6px" }}
-                label="ID người đặt"
-              >
+              <Descriptions.Item style={{ padding: "6px" }} label="ID người đặt">
                 {order.user_id}
               </Descriptions.Item>
             </Descriptions>
           </Card>
         </Col>
         <Col span={16}>
-          <Card
-            title="Thông tin người nhận"
-            bodyStyle={{ padding: "10px" }}
-            headStyle={{ padding: "0 16px", minHeight: 38 }}
-          >
+          <Card title="Thông tin người nhận" bodyStyle={{ padding: "10px" }} headStyle={{ padding: "0 16px", minHeight: 38 }}>
             <Descriptions column={1} bordered>
-              <Descriptions.Item
-                style={{ padding: "6px" }}
-                label="Tên người nhận"
-              >
+              <Descriptions.Item style={{ padding: "6px" }} label="Tên người nhận">
                 {order.receiver_name}
               </Descriptions.Item>
-              <Descriptions.Item
-                style={{ padding: "6px" }}
-                label="Số điện thoại"
-              >
+              <Descriptions.Item style={{ padding: "6px" }} label="Số điện thoại">
                 {order.receiver_phone}
               </Descriptions.Item>
               <Descriptions.Item style={{ padding: "6px" }} label="Địa chỉ">
                 {order.receiver_address}
               </Descriptions.Item>
             </Descriptions>
-            <div
-              style={{ marginTop: "10px" }}
-              className="d-flex justify-content-end"
-            >
+            <div style={{ marginTop: "10px" }} className="d-flex justify-content-end">
               <Button type="primary" onClick={showEditModal}>
                 Chỉnh sửa
               </Button>
@@ -179,11 +174,7 @@ const OrderDetailAdmin = () => {
       {/* Row 2: Thông tin khác */}
       <Row style={{ marginTop: "16px" }}>
         <Col span={24}>
-          <Card
-            title="Thông tin đơn hàng"
-            bodyStyle={{ padding: "10px" }}
-            headStyle={{ padding: "0 16px", minHeight: 38 }}
-          >
+          <Card title="Thông tin đơn hàng" bodyStyle={{ padding: "10px" }} headStyle={{ padding: "0 16px", minHeight: 38 }}>
             <Descriptions column={1} bordered>
               <Descriptions.Item style={{ padding: "6px" }} label="Tổng tiền">
                 {formatCurrency(order.total_price)}
@@ -202,21 +193,12 @@ const OrderDetailAdmin = () => {
       {/* Row 3: Danh sách sản phẩm */}
       <Row gutter={16} style={{ marginTop: "16px" }}>
         <Col span={24}>
-          <Card
-            title="Sản phẩm trong đơn hàng"
-            bodyStyle={{ padding: "10px" }}
-            headStyle={{ padding: "0 16px", minHeight: 38 }}
-          >
-            <Table
-              columns={productColumns}
-              dataSource={order.items}
-              pagination={false}
-              rowKey="product_id"
-              size="small"
-            />
+          <Card title="Sản phẩm trong đơn hàng" bodyStyle={{ padding: "10px" }} headStyle={{ padding: "0 16px", minHeight: 38 }}>
+            <Table columns={productColumns} dataSource={order.items} pagination={false} rowKey="product_id" size="small" />
           </Card>
         </Col>
       </Row>
+
       {/* Modal chỉnh sửa thông tin */}
       <Modal title="Chỉnh sửa thông tin" visible={isModalVisible} onCancel={handleCancel} footer={null}>
         <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
@@ -236,10 +218,10 @@ const OrderDetailAdmin = () => {
             <Input />
           </Form.Item>
           <Form.Item name="status" label="Trạng thái" rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}>
-            <Select>
-                <Select.Option value="completed">Thành công</Select.Option>
-                <Select.Option value="pending">Chờ duyệt</Select.Option>
-                <Select.Option value="cancel">Huỷ</Select.Option>
+            <Select value={selectedStatus} onChange={setSelectedStatus} placeholder="Chọn trạng thái" allowClear>
+              {orderStatus.filter(a => a.id !== 2).map((x) => (
+                <Select.Option value={x.englishName}>{x.name}</Select.Option>
+              ))}
             </Select>
           </Form.Item>
           <Form.Item>
