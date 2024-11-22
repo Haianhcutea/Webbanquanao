@@ -3,8 +3,9 @@ const { registerUser, loginUser } = require('../controllers/authController');
 const { addCategory, getCategories, updateCategory, softDeleteCategory } = require('../controllers/categoryController');
 const { addProduct, getProductById, getProductsByCategory,  getAllProducts, updateProduct, softDeleteProduct } = require('../controllers/productController');
 const { addToCart, getCartDetails } = require('../controllers/cartController');
-const { placeOrder, getUserOrders, getAllOrders, updateOrder } = require('../controllers/orderController.js');
+const { placeOrder, getUserOrders, getAllOrders, updateOrder, createZaloPayOrder, handleZaloPayCallback, checkOrderStatus } = require('../controllers/orderController.js');
 const authMiddleware = require('../middlewares/authMiddleware');
+
 const upload = require('../config/multerConfig'); // Cấu hình multer để upload file
 
 const router = express.Router();
@@ -64,6 +65,17 @@ router.get('/cart', authMiddleware, getCartDetails);
 // ĐƠN HÀNG 
 // đặt hàng  
 router.post('/place-order', authMiddleware, placeOrder);
+
+
+// đặt hàng  
+router.post('/place-order-zalo', createZaloPayOrder);
+
+
+// Route callback ZaloPay
+router.post('/callback', handleZaloPayCallback);
+
+// Route kiểm tra trạng thái đơn hàng
+router.post('/check-status-order', checkOrderStatus);
 
 // lấy danh sách đơn hàng của người dùng
 router.get('/orders', authMiddleware, getUserOrders);

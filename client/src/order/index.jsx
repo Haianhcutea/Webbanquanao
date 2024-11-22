@@ -1,10 +1,12 @@
 import React from "react";
 import Breadcumb from "../layouts/breadcumb";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { formatCurrency } from "../../App";
 
 const Order = () => {
+  const navigate = useNavigate();
   const cartByUserID = useSelector((state) => state.cart);
-
   return (
     <div>
       <Breadcumb parentTitle={"Trang chủ"} title={"Giỏ hàng"} />
@@ -31,11 +33,9 @@ const Order = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {cartByUserID?.cartData?.map((product) =>
+                          {cartByUserID?.cartData.length > 0 ? cartByUserID?.cartData?.map((product) =>
                             product.variant.map((variant) => (
-                              <tr
-                                key={`${product.product_id}-${variant.color}-${variant.size}`}
-                              >
+                              <tr key={`${product.product_id}-${variant.color}-${variant.size}`}>
                                 <td className="pro-thumbnail">
                                   <a href="javascript:void(0)">
                                     <img
@@ -49,31 +49,19 @@ const Order = () => {
                                 </td>
                                 <td className="pro-title">
                                   <a href="javascript:void(0)">
-                                    {product.name} - {variant.color}{" "}
-                                    {variant.size}
+                                    {product.name} - {variant.color} {variant.size}
                                   </a>
                                 </td>
                                 <td className="pro-price">
-                                  <span>{variant.price} VNĐ</span>
+                                  <span>{formatCurrency(variant.price)}</span>
                                 </td>
                                 <td className="pro-quantity">
                                   <div className="quantity-selection">
-                                    <input
-                                      type="number"
-                                      defaultValue={variant.quantity}
-                                      min={1}
-                                      disabled
-                                      style={{ background: "#ebebeb" }}
-                                    />
+                                    <input type="number" defaultValue={variant.quantity} min={1} disabled style={{ background: "#ebebeb" }} />
                                   </div>
                                 </td>
                                 <td className="pro-subtotal">
-                                  <span>
-                                    {(variant.price * variant.quantity).toFixed(
-                                      2
-                                    )}{" "}
-                                    VNĐ
-                                  </span>
+                                  <span>{formatCurrency(variant.price * variant.quantity)}</span>
                                 </td>
                                 <td className="pro-remove">
                                   <a href="#">
@@ -82,7 +70,7 @@ const Order = () => {
                                 </td>
                               </tr>
                             ))
-                          )}
+                          ) : <td colSpan={7} className="text-center py-5">Không có sản phẩm nào trong giỏ hàng</td>}
                         </tbody>
                       </table>
                     </div>
@@ -124,41 +112,67 @@ const Order = () => {
                       </div> */}
                       {/*=======  End of Calculate Shipping  =======*/}
                       {/*=======  Discount Coupon  =======*/}
-                      {/* <div className="discount-coupon">
-                        <h4>Discount Coupon Code</h4>
+                      <div className="discount-coupon">
+                        <h4>Mã giảm giá</h4>
                         <form action="#">
                           <div className="row">
                             <div className="col-md-6 col-12">
-                              <input type="text" placeholder="Coupon Code" />
+                              <input type="text" placeholder="Mã giảm giá" />
                             </div>
                             <div className="col-md-6 col-12">
                               <input type="submit" defaultValue="Apply Code" />
                             </div>
                           </div>
                         </form>
-                      </div> */}
+                      </div>
                       {/*=======  End of Discount Coupon  =======*/}
                     </div>
                     <div className="col-lg-6 col-12 d-flex">
                       {/*=======  Cart summery  =======*/}
-                      {/* <div className="cart-summary">
+                      <div className="cart-summary">
                         <div className="cart-summary-wrap">
-                          <h4>Cart Summary</h4>
+                          <h4>Tổng giỏ hàng</h4>
                           <p>
-                            Sub Total <span>$1250.00</span>
+                            Tổng tiền{" "}
+                            <span>
+                              {" "}
+                              {formatCurrency(cartByUserID.cartData.reduce(
+                                (total, product) =>
+                                  total + product.variant.reduce((subtotal, variant) => subtotal + variant.price * variant.quantity, 0),
+                                0
+                              ))}
+                            </span>
                           </p>
                           <p>
-                            Shipping Cost <span>$00.00</span>
+                            Phí ship <span>30.000</span>
                           </p>
                           <h2>
-                            Grand Total <span>$1250.00</span>
+                            Tổng cộng{" "}
+                            <span>
+                              {" "}
+                              {formatCurrency(
+                                cartByUserID.cartData.reduce(
+                                  (total, product) =>
+                                    total + product.variant.reduce((subtotal, variant) => subtotal + variant.price * variant.quantity, 0),
+                                  0
+                                )
+                              )}
+                            </span>
                           </h2>
                         </div>
                         <div className="cart-summary-button">
-                          <button className="checkout-btn">Checkout</button>
-                          <button className="update-btn">Update Cart</button>
+                          <button className="checkout-btn" onClick={() => {
+                            if (cartByUserID?.cartData.length > 0) {
+                              navigate("/checkout");
+                            } else {
+                              alert("Giỏ hàng không có sản phẩm để thanh toán");
+                            }
+                          }}>
+                            Thanh toán
+                          </button>
+                          <button className="update-btn">Cập nhật giỏ hàng</button>
                         </div>
-                      </div> */}
+                      </div>
                       {/*=======  End of Cart summery  =======*/}
                     </div>
                   </div>
