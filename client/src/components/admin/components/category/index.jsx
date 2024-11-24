@@ -5,7 +5,7 @@ import { PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { openNotificationWithIcon, NotificationContext } from "@/App";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { setListCategory } from "../../../../store/categories";
+import { setListCategory } from "../../../../store/admin/categories";
 
 const CategoriesAdmin = () => {
   const api = useContext(NotificationContext);
@@ -26,13 +26,13 @@ const CategoriesAdmin = () => {
       ellipsis: true,
     },
     {
-      title: "Name",
+      title: "Tên",
       dataIndex: "name",
       key: "name",
       ellipsis: true,
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       ellipsis: true,
@@ -60,13 +60,13 @@ const CategoriesAdmin = () => {
       },
     },
     {
-      title: "Description",
+      title: "Mô tả",
       dataIndex: "description",
       key: "description",
       ellipsis: true,
     },
     {
-      title: "Actions",
+      title: "Chức năng",
       key: "actions",
       render: (text, record) => (
         <span style={{ display: "flex", gap: 16, justifyContent: "center" }}>
@@ -188,7 +188,7 @@ const CategoriesAdmin = () => {
             setAction("ADD");
           }}
           icon={<PlusOutlined />}>
-          Add
+          Thêm
         </Button>
       </Space>
 
@@ -201,7 +201,7 @@ const CategoriesAdmin = () => {
       />
 
       <Drawer
-        title={action === "ADD" ? "Create a new categories" : "Update categories"}
+        title={action === "ADD" ? "Thêm mới danh mục" : "Cập nhật danh mục"}
         width={720}
         onClose={onClose}
         open={open}
@@ -212,9 +212,9 @@ const CategoriesAdmin = () => {
         }}
         extra={
           <Space>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose}>Đóng</Button>
             <Button onClick={() => handleAddorUpdate("ADD")} type="primary">
-              Submit
+              Lưu
             </Button>
           </Space>
         }>
@@ -226,30 +226,30 @@ const CategoriesAdmin = () => {
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="Name"
+                label="Tên"
                 rules={[
                   {
                     required: true,
-                    message: "Please enter user name",
+                    message: "Vui lòng nhập tên",
                   },
                 ]}>
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="Vui lòng nhập tên" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="status"
-                label="Status"
+                label="Trạng thái"
                 rules={[
                   {
                     required: true,
-                    message: "Please select an status",
+                    message: "Vui lòng nhập trạng thái",
                   },
                 ]}>
-                <Select placeholder="Please select a status">
-                  <Select.Option value="active">Active</Select.Option>
-                  <Select.Option value="inactive">InActive</Select.Option>
-                  <Select.Option value="closed">Closed</Select.Option>
+                <Select placeholder="Vui lòng nhập trạng thái">
+                  <Select.Option value="active">Hoạt động</Select.Option>
+                  <Select.Option value="inactive">Không hoạt động</Select.Option>
+                  <Select.Option value="closed">Đóng</Select.Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -258,14 +258,14 @@ const CategoriesAdmin = () => {
             <Col span={24}>
               <Form.Item
                 name="description"
-                label="Description"
+                label="Mô tả"
                 rules={[
                   {
                     required: true,
-                    message: "please enter url description",
+                    message: "Vui lòng nhập mô tả",
                   },
                 ]}>
-                <Input.TextArea rows={4} placeholder="please enter url description" />
+                <Input.TextArea rows={4} placeholder="Vui lòng nhập mô tả" />
               </Form.Item>
             </Col>
           </Row>

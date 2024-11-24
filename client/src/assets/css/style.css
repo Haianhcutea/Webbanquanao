@@ -871,7 +871,7 @@ select {
 
 /* minicart */
 .mini-cart {
-  width: 350px;
+  width: 400px;
   padding: 30px;
   background-color: #ffffff;
   z-index: 9999;
@@ -884,6 +884,7 @@ select {
 .mini-cart .cart-items-wrapper {
   max-height: 280px;
   overflow: hidden;
+  overflow-y: scroll;
   padding: 0 30px;
   margin: 0 -30px;
   position: relative;
@@ -2754,8 +2755,8 @@ select {
   display: inline-block;
   color: #292929;
   text-align: center;
-  -ms-flex-preferred-size: 25%;
-      flex-basis: 25%;
+  -ms-flex-preferred-size: 50%;
+      flex-basis: 50%;
   border-right: 1px solid #ebebeb;
 }
 .single-grid-product__image .hover-icons a:hover, .single-grid-product__image .hover-icons a.active {
@@ -4853,14 +4854,15 @@ select {
   display: inline-block;
   margin-right: 5px;
   margin-top: 10px;
-<<<<<<< HEAD
-  border: 2px solid transparent;
+  border: 1px solid #999;
 }
-=======
+
+.color .active  span.color-block{
   border: 2px solid #999;
+  transform: scale(1.2);
 }
+
 /* chỉnh sửa style màu cho sản phẩm biến thể */
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
 .color span.color-choice-1 {
   background-color: #B09603;
 }
@@ -4870,14 +4872,7 @@ select {
 .color span.color-choice-3 {
   background-color: #225170;
 }
-.color span.active {
-  border-color: #ee3333;
-  width: 32px;
-  height: 32px;
-}
-<<<<<<< HEAD
 
-=======
 .color span.color-choice-black {
   background-color: black;
 }
@@ -4893,7 +4888,13 @@ select {
 .color span.color-choice-yellow {
   background-color: yellow;
 }
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
+
+.color span.active {
+  border-color: #ee3333;
+  width: 32px;
+  height: 32px;
+}
+
 .group-product-form {
   margin-bottom: 20px;
 }
@@ -5907,7 +5908,6 @@ select {
   padding: 10px 20px;
   font-size: 14px;
   color: #707070;
-  margin-bottom: 15px;
 }
 .checkout-form input[type=checkbox] {
   width: auto;
@@ -6288,7 +6288,7 @@ select {
   margin: 0;
 }
 .account-details-form input {
-  margin-bottom: 30px;
+  margin-bottom: 0px;
   display: block;
   width: 100%;
   border: 1px solid #ebebeb;
@@ -7614,3 +7614,11 @@ h3.comment-counter {
 }
 
 /*=====  End of Blog  ======*/
+
+.slick-prev:before, .slick-next:before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #212121 !important;
+}

@@ -18,6 +18,7 @@ const items = [
   getItem("Q.lý danh mục", "1", <PieChartOutlined />),
   getItem("Q.lý sản phẩm", "2", <DesktopOutlined />),
   getItem("Q.lý đơn hàng", "3", <DesktopOutlined />),
+  getItem("Q.lý mã giảm giá", "4", <DesktopOutlined />),
 ];
 
 const MainLayoutAdmin = () => {
@@ -31,6 +32,7 @@ const MainLayoutAdmin = () => {
 
   const [collapsed, setCollapsed] = useState(false);
   const [title, setTitle] = useState("Q.lý danh mục");
+
   const handleLogout = () => {
     dispatch(logoutAdmin());
     navigate("/admin/login");
@@ -42,7 +44,7 @@ const MainLayoutAdmin = () => {
 
     // đăng xuất
     if (e.key === "2") {
-      dispatch(logout());
+      handleLogout();
       navigate("/admin/login");
     }
   };
@@ -75,6 +77,10 @@ const MainLayoutAdmin = () => {
       navigate("/admin/dashboard/orders"); 
       setTitle("Q.Lý Đơn hàng");
     } 
+    else if (e.key === "4") {
+      navigate("/admin/dashboard/coupons"); 
+      setTitle("Q.Lý Mã giảm giá");
+    } 
   };
 
   return (
@@ -98,7 +104,7 @@ const MainLayoutAdmin = () => {
             paddingLeft: "24px",
             marginBottom: "24px"
           }}>
-                <div className="d-flex w-100 ">
+          <div className="d-flex w-100 ">
           <h3>{title}</h3>
           </div>
           {/* Dropdown show tên user */}

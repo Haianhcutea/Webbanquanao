@@ -78,9 +78,7 @@ const ProductDetail = () => {
   const handleGetDetailProduct = async () => {
     try {
       const id = location?.pathname.split("/")[2];
-      const response = await axios.get(
-        `http://localhost:5555/api/product/${id}`
-      );
+      const response = await axios.get(`http://localhost:5555/api/product/${id}`);
 
       if (response.status === 200) {
         setData(response.data);
@@ -112,9 +110,7 @@ const ProductDetail = () => {
   // Hàm để tìm biến thể dựa trên size và color
   useEffect(() => {
     if (selectedSize && selectedColor) {
-      const variant = data?.variants?.find(
-        (v) => v.size === selectedSize && v.color === selectedColor
-      );
+      const variant = data?.variants?.find((v) => v.size === selectedSize && v.color === selectedColor);
       setSelectedVariant(variant);
     }
   }, [selectedSize, selectedColor, data]);
@@ -126,9 +122,7 @@ const ProductDetail = () => {
     setQuantity(null);
 
     // Tìm kiếm biến thể theo đầu tiên theo size
-    const firstVariantForSize = data?.variants?.find(
-      (v) => v.size === selectedSize
-    );
+    const firstVariantForSize = data?.variants?.find((v) => v.size === selectedSize);
 
     if (firstVariantForSize) {
       setSelectedColor(firstVariantForSize.color);
@@ -139,6 +133,7 @@ const ProductDetail = () => {
   // hàm khi thêm sản phẩm vào giỏ hàng
   const handleAddCart = async () => {
     try {
+
       // Thay thế Fetch API bằng Axios
       const response = await axios.post(
         "http://localhost:5555/api/add-to-cart",
@@ -166,35 +161,18 @@ const ProductDetail = () => {
 
       if (response && response.status === 200) {
         dispatch(fetchCartDetailByUserID({ token, userId: userInfor._id }));
-        openNotificationWithIcon(
-          api,
-          "success",
-          "Thêm vào giỏ hàng thành công",
-          "Thêm vào giỏ hàng thành công"
-        );
+        openNotificationWithIcon(api, "success", "Thêm vào giỏ hàng thành công", "Thêm vào giỏ hàng thành công");
       } else {
-        openNotificationWithIcon(
-          api,
-          "error",
-          "Thêm vào giỏ hàng thất bại",
-          "Thêm vào giỏ hàng thất bại"
-        );
+        openNotificationWithIcon(api, "error", "Thêm vào giỏ hàng thất bại", "Thêm vào giỏ hàng thất bại");
       }
     } catch (error) {
-      console.error(
-        "Error adding to cart:",
-        error.response?.data || error.message
-      );
-      openNotificationWithIcon(
-        api,
-        "error",
-        "Thêm vào giỏ hàng thất bại",
-        "Thêm vào giỏ hàng thất bại"
-      );
+      console.error("Error adding to cart:", error.response?.data || error.message);
+      openNotificationWithIcon(api, "error", "Thêm vào giỏ hàng thất bại", "Thêm vào giỏ hàng thất bại");
     }
   };
 
   console.log(selectedVariant, "1111", quantity);
+  
 
   return (
     <div>
@@ -217,21 +195,10 @@ const ProductDetail = () => {
                             {/* Slider lớn */}
                             {/* thêm điều kiện check lần đầu vào trang để hiện ảnh khi call api chưa có data */}
                             {data?.image && data.image.length > 0 && (
-                              <Slider
-                                {...bigImageSettings}
-                                className="big-image-slider"
-                                asNavFor={nav2}
-                                ref={(slider1) => setNav1(slider1)}
-                              >
+                              <Slider {...bigImageSettings} className="big-image-slider" asNavFor={nav2} ref={(slider1) => setNav1(slider1)}>
                                 {data.image.map((x, index) => (
                                   <div className="single-image" key={index}>
-                                    <img
-                                      src={`http://localhost:5555${x.img_url}`}
-                                      alt=""
-                                      width={600}
-                                      height={800}
-                                      style={{ objectFit: "contain" }}
-                                    />
+                                    <img src={`http://localhost:5555${x.img_url}`} alt="" width={600} height={800} style={{ objectFit: "contain" }} />
                                   </div>
                                 ))}
                               </Slider>
@@ -241,20 +208,10 @@ const ProductDetail = () => {
                             {/* Slider nhỏ */}
                             {/* thêm điều kiện check lần đầu vào trang để hiện ảnh khi call api chưa có data */}
                             {data?.image && data.image.length > 0 && (
-                              <Slider
-                                {...smallImageSettings}
-                                className="small-image-slider"
-                                asNavFor={nav1}
-                                ref={(slider2) => setNav2(slider2)}
-                              >
+                              <Slider {...smallImageSettings} className="small-image-slider" asNavFor={nav1} ref={(slider2) => setNav2(slider2)}>
                                 {data.image.map((x, index) => (
                                   <div className="single-image" key={index}>
-                                    <img
-                                      src={`http://localhost:5555${x.img_url}`}
-                                      alt=""
-                                      width={170}
-                                      height={226}
-                                    />
+                                    <img src={`http://localhost:5555${x.img_url}`} alt="" width={170} height={226} />
                                   </div>
                                 ))}
                               </Slider>
@@ -281,18 +238,12 @@ const ProductDetail = () => {
                             </span>
                             <span className="review-count">
                               {" "}
-                              <a href="#">(2 reviews)</a> |{" "}
-                              <a href="#">Write A Review</a>{" "}
+                              <a href="#">(2 reviews)</a> | <a href="#">Write A Review</a>{" "}
                             </span>
                           </div>
                           <p className="single-grid-product__price">
-                            <span className="discounted-price">
-                              {data?.variants?.length > 0 &&
-                                data?.variants[0]?.price}
-                            </span>{" "}
-                            <span className="main-price discounted">
-                              $120.00
-                            </span>
+                            <span className="discounted-price">{data?.variants?.length > 0 && data?.variants[0]?.price}</span>{" "}
+                            <span className="main-price discounted">$120.00</span>
                           </p>
                           <p className="single-info">
                             Product Code: <span className="value">CODE123</span>{" "}
@@ -301,25 +252,14 @@ const ProductDetail = () => {
                             Reward Points: <span className="value">200</span>{" "}
                           </p>
                           <p className="single-info">
-                            Availability:{" "}
-                            <span className="value">In Stock</span>
+                            Availability: <span className="value">In Stock</span>
                           </p>
-                          <p className="product-description">
-                            {data?.description}
-                          </p>
+                          <p className="product-description">{data?.description}</p>
                           <div className="size mb-20">
                             <span className="title">Kích cỡ:</span> <br />
-                            <select
-                              name="chooseSize"
-                              id="chooseSize"
-                              className="nice-select"
-                              value={selectedSize}
-                              onChange={handleChangeSize}
-                            >
+                            <select name="chooseSize" id="chooseSize" className="nice-select" value={selectedSize} onChange={handleChangeSize}>
                               {/* Lấy các kích thước không trùng lặp */}
-                              {[
-                                ...new Set(data?.variants?.map((x) => x.size)),
-                              ].map((size, index) => (
+                              {[...new Set(data?.variants?.map((x) => x.size))].map((size, index) => (
                                 <option key={index} value={size}>
                                   {size}
                                 </option>
@@ -333,16 +273,8 @@ const ProductDetail = () => {
                             {data?.variants
                               ?.filter((x) => x.size === selectedSize) // Lọc theo size đã chọn
                               .map((x, index) => (
-                                <a
-                                  key={index}
-                                  onClick={() => setSelectedColor(x.color)}
-                                  className={
-                                    x.color === selectedColor ? "active" : ""
-                                  }
-                                >
-                                  <span
-                                    className={`color-block color-choice-${x.color}`}
-                                  />
+                                <a key={index} onClick={() => setSelectedColor(x.color)} className={x.color === selectedColor ? "active" : ""}>
+                                  <span className={`color-block color-choice-${x.color}`} />
                                 </a>
                               ))}
                           </div>
@@ -357,29 +289,23 @@ const ProductDetail = () => {
                                   min={1}
                                   max={selectedVariant.stock}
                                   onChange={(e) => {
-                                    setSelectedVariant({
-                                      ...selectedVariant,
-                                      stock: e.target.value,
-                                    });
-                                    setQuantity(Number(e.target.value));
+                                    setSelectedVariant({ ...selectedVariant, stock: e.target.value });
+                                    setQuantity(Number(e.target.value))
                                   }}
                                 />
                               </div>
                               <div className="product-buttons">
-                                <a
-                                  className="cart-btn"
-                                  onClick={() => handleAddCart()}
-                                >
+                                <a className="cart-btn" onClick={() => handleAddCart()}>
                                   <i className="ion-bag" /> Thêm giỏ hàng
                                 </a>
-                                <span className="wishlist-compare-btn">
+                                {/* <span className="wishlist-compare-btn">
                                   <a>
                                     <i className="ion-heart" />
                                   </a>
                                   <a>
                                     <i className="ion-android-options" />
                                   </a>
-                                </span>
+                                </span> */}
                               </div>
                             </div>
                           )}
@@ -397,30 +323,21 @@ const ProductDetail = () => {
                         <div className="tab-slider-wrapper product-description-review-container section-space--inner">
                           {/* Tab Navigation */}
                           <nav>
-                            <div
-                              className="nav nav-tabs justify-content-center"
-                              role="tablist"
-                            >
+                            <div className="nav nav-tabs justify-content-center" role="tablist">
                               <a
-                                className={`nav-item nav-link ${
-                                  activeTab === "description" ? "active" : ""
-                                }`}
+                                className={`nav-item nav-link ${activeTab === "description" ? "active" : ""}`}
                                 onClick={() => handleTabChange("description")}
                                 role="tab"
                                 aria-selected={activeTab === "description"}
-                                style={{ cursor: "pointer" }}
-                              >
+                                style={{ cursor: "pointer" }}>
                                 Mô tả
                               </a>
                               <a
-                                className={`nav-item nav-link ${
-                                  activeTab === "review" ? "active" : ""
-                                }`}
+                                className={`nav-item nav-link ${activeTab === "review" ? "active" : ""}`}
                                 onClick={() => handleTabChange("review")}
                                 role="tab"
                                 aria-selected={activeTab === "review"}
-                                style={{ cursor: "pointer" }}
-                              >
+                                style={{ cursor: "pointer" }}>
                                 Bình luận (1)
                               </a>
                             </div>
@@ -431,9 +348,7 @@ const ProductDetail = () => {
                             {/* Description Tab */}
                             {activeTab === "description" && (
                               <div className="tab-pane fade show active">
-                                <div className="product-description">
-                                  {data?.description}
-                                </div>
+                                <div className="product-description">{data?.description}</div>
                               </div>
                             )}
 
@@ -487,12 +402,8 @@ const ProductDetail = () => {
                                         </div>
                                       </div>
                                       <p>
-                                        enim ipsam voluptatem quia voluptas sit
-                                        aspernatur aut odit aut fugit, sed quia
-                                        res eos qui ratione voluptatem sequi
-                                        Neque porro quisquam est, qui dolorem
-                                        ipsum quia dolor sit amet, consectetur,
-                                        adipisci veli
+                                        enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia res eos qui ratione voluptatem
+                                        sequi Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci veli
                                       </p>
                                     </div>
                                     <div className="sin-ratings">
@@ -508,12 +419,8 @@ const ProductDetail = () => {
                                         </div>
                                       </div>
                                       <p>
-                                        enim ipsam voluptatem quia voluptas sit
-                                        aspernatur aut odit aut fugit, sed quia
-                                        res eos qui ratione voluptatem sequi
-                                        Neque porro quisquam est, qui dolorem
-                                        ipsum quia dolor sit amet, consectetur,
-                                        adipisci veli
+                                        enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia res eos qui ratione voluptatem
+                                        sequi Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci veli
                                       </p>
                                     </div>
                                   </div>
@@ -533,35 +440,18 @@ const ProductDetail = () => {
                                         </div>
                                         <div className="col-md-6 col-12 form-group">
                                           <label htmlFor="name">Name:</label>
-                                          <input
-                                            id="name"
-                                            placeholder="Name"
-                                            type="text"
-                                          />
+                                          <input id="name" placeholder="Name" type="text" />
                                         </div>
                                         <div className="col-md-6 col-12 form-group">
                                           <label htmlFor="email">Email:</label>
-                                          <input
-                                            id="email"
-                                            placeholder="Email"
-                                            type="text"
-                                          />
+                                          <input id="email" placeholder="Email" type="text" />
                                         </div>
                                         <div className="col-12 form-group">
-                                          <label htmlFor="your-review">
-                                            Your Review:
-                                          </label>
-                                          <textarea
-                                            name="review"
-                                            id="your-review"
-                                            placeholder="Write a review"
-                                          />
+                                          <label htmlFor="your-review">Your Review:</label>
+                                          <textarea name="review" id="your-review" placeholder="Write a review" />
                                         </div>
                                         <div className="col-12">
-                                          <input
-                                            defaultValue="add review"
-                                            type="submit"
-                                          />
+                                          <input defaultValue="add review" type="submit" />
                                         </div>
                                       </div>
                                     </form>
@@ -583,8 +473,7 @@ const ProductDetail = () => {
                         <div className="section-title-wrapper text-center section-space--half">
                           <h2 className="section-title">Sản phẩm liên quan</h2>
                           <p className="section-subtitle">
-                            Mirum est notare quam littera gothica, quam nunc
-                            putamus parum claram anteposuerit litterarum formas.
+                            Mirum est notare quam littera gothica, quam nunc putamus parum claram anteposuerit litterarum formas.
                           </p>
                         </div>
                         {/*=======  End of section title  =======*/}

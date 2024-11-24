@@ -1,0 +1,524 @@
+const Cart = require('../models/cart');
+const Order = require('../models/order');
+const Coupon = require('../models/coupon');
+const PendingOrder = require('../models/PendingOrder');
+const axios = require("axios");
+const crypto = require('crypto');
+const CryptoJS = require('crypto-js');
+const moment = require('moment');
+const nodemailer = require('nodemailer'); // Import Nodemailer
+require('dotenv').config(); // Để sử dụng các biến từ .env
+
+// Cấu hình transporter cho Nodemailer
+const transporter = nodemailer.createTransport({
+  service: 'Gmail', // khai báo dùng dịch vụ gmail
+  auth: {
+    user: process.env.EMAIL_USERNAME, // Đặt trong file .env
+    pass: process.env.EMAIL_PASSWORD, // Đặt trong file .env
+  },
+});
+
+
+// Lấy toàn bộ đơn hàng
+const getAllOrders = async (req, res) => {
+  try {
+    // Tìm tất cả các đơn hàng trong hệ thống, sắp xếp theo ngày đặt hàng mới nhất
+    const orders = await Order.find().sort({ created_at: -1 });
+
+    if (!orders.length) {
+      return res.status(404).json({ message: 'No orders found' });
+    }
+
+    // Trả về danh sách đơn hàng
+    res.status(200).json({
+      orders: orders.map((order) => ({
+        order_id: order._id,
+        user_id: order.user_id,
+        items: order.items.map((item) => ({
+          product_id: item.product_id,
+          name: item.name,
+          img_url: item.img_url,
+          variants: item.variants.map((variant) => ({
+            color: variant.color,
+            size: variant.size,
+            price: variant.price,
+            quantity: variant.quantity,
+          })),
+        })),
+        total_price: order.total_price,
+        receiver_name: order.receiver_name,
+        receiver_phone: order.receiver_phone,
+        receiver_email: order.receiver_email,
+        receiver_address: order.receiver_address,
+        note: order.note,
+        status: order.status,
+        payment_method: order.payment_method,
+        cancel_reason: order.cancel_reason,
+        canceled_by: order.canceled_by,
+        created_at: order.created_at,
+        updated_at: order.updated_at,
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching all orders:', error.message);
+    res
+      .status(500)
+      .json({ message: 'Error fetching all orders', error: error.message });
+  }
+};
+
+const placeOrder = async (req, res) => {
+  const user_id = req.user._id; // Lấy user_id từ req.user (đã có middleware auth)
+  const {
+    receiver_name,
+    receiver_phone,
+    receiver_email,
+    receiver_address,
+    note,
+    coupon_code, // Mã giảm giá gửi từ client
+  } = req.body;
+
+  try {
+    // Lấy giỏ hàng của người dùng
+    const cart = await Cart.findOne({ user_id });
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: 'Your cart is empty' });
+    }
+
+    let discount = 0; // Giá trị giảm giá ban đầu
+
+    // Kiểm tra mã giảm giá nếu được áp dụng
+    if (coupon_code) {
+      const coupon = await Coupon.findOne({ code: coupon_code, isActive: true });
+
+      if (!coupon) {
+        return res.status(400).json({ message: 'Invalid or expired coupon' });
+      }
+
+      if (new Date(coupon.expirationDate) < new Date()) {
+        return res.status(400).json({ message: 'Coupon has expired' });
+      }
+
+      if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+        return res.status(400).json({ message: 'Coupon usage limit reached' });
+      }
+
+      // Tính giá trị giảm giá
+      discount = Math.min(
+        (cart.total_price * coupon.discount) / 100, // Phần trăm giảm giá
+        coupon.maxDiscount // Giảm tối đa
+      );
+
+      // Tăng số lần sử dụng mã giảm giá
+      coupon.usedCount += 1;
+      await coupon.save();
+    }
+
+    // Tính tổng giá trị sau giảm giá
+    const finalPrice = cart.total_price - discount;
+
+    // Tạo đơn hàng từ giỏ hàng
+    const newOrder = new Order({
+      user_id,
+      items: cart.items, // Lấy các sản phẩm từ giỏ hàng
+      total_price: finalPrice, // Tổng giá trị sau giảm giá
+      discount, // Giá trị giảm giá
+      coupon_code, // Mã giảm giá đã áp dụng
+      receiver_name,
+      receiver_phone,
+      receiver_email,
+      receiver_address,
+      note, // Ghi chú đơn hàng
+    });
+
+    // Lưu đơn hàng
+    await newOrder.save();
+
+    // Xóa giỏ hàng sau khi đặt hàng thành công (nếu cần)
+    await Cart.findOneAndDelete({ user_id });
+
+    return res
+      .status(201)
+      .json({ message: 'Order placed successfully', order: newOrder });
+  } catch (error) {
+    console.error('Error placing order:', error.message);
+    return res
+      .status(500)
+      .json({ message: 'Error placing order', error: error.message });
+  }
+};
+
+
+
+const config = {
+  app_id: "2553",
+  key1: "PcY4iZIKFCIdgZvA6ueMcMHHUbRLYjPL",
+  key2: "kLtgPl8HHhfvMuDHPwKfgfsY4Ydm9eIz",
+  endpoint: "https://sb-openapi.zalopay.vn/v2/create"
+};
+
+
+const createZaloPayOrder = async (req, res) => {
+  const { description, receiver_name, receiver_phone, receiver_email, receiver_address, note, coupon_code } = req.body;
+  const embed_data = { redirecturl: 'http://localhost:5173/checkout-result' };
+  const transID = Math.floor(Math.random() * 1000000);
+  const user_id = req.user._id;
+  const callback_url1 = global.CALLBACK_URL;
+  console.log(callback_url1);
+  
+  try {
+    // Lấy giỏ hàng của người dùng
+    const cart = await Cart.findOne({ user_id });
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: 'Your cart is empty' });
+    }
+
+    let discount = 0; // Giá trị giảm giá ban đầu
+
+    // Kiểm tra mã giảm giá nếu được áp dụng
+    if (coupon_code) {
+      const coupon = await Coupon.findOne({ code: coupon_code, isActive: true });
+
+      if (!coupon) {
+        return res.status(400).json({ message: 'Invalid or expired coupon' });
+      }
+
+      if (new Date(coupon.expirationDate) < new Date()) {
+        return res.status(400).json({ message: 'Coupon has expired' });
+      }
+
+      if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+        return res.status(400).json({ message: 'Coupon usage limit reached' });
+      }
+
+      // Tính giá trị giảm giá
+      discount = Math.min(
+        (cart.total_price * coupon.discount) / 100,
+        coupon.maxDiscount
+      );
+
+      // Tăng số lần sử dụng mã giảm giá
+      coupon.usedCount += 1;
+      await coupon.save();
+    }
+
+    // Tổng giá trị sau giảm giá
+    const finalPrice = cart.total_price - discount;
+
+    // Tạo đơn hàng cho ZaloPay
+    const order = {
+      app_id: config.app_id,
+      app_trans_id: `${moment().format('YYMMDD')}_${transID}`, // ID giao dịch duy nhất
+      app_user: "user123",
+      app_time: Date.now(),
+      item: JSON.stringify(cart.items),
+      embed_data: JSON.stringify(embed_data),
+      amount: finalPrice, // Sử dụng tổng giá sau giảm giá
+      description: description || `Payment for order #${transID}`,
+      bank_code: '',
+      callback_url: callback_url1
+    };
+
+    // Tạo chuỗi dữ liệu để tạo `MAC`
+    const data = `${config.app_id}|${order.app_trans_id}|${order.app_user}|${order.amount}|${order.app_time}|${order.embed_data}|${order.item}`;
+    order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+
+    // Gửi yêu cầu tới ZaloPay
+    const response = await axios.post(config.endpoint, null, { params: order });
+
+    if (response.data.return_code === 1) {
+      // Lưu tạm thời đơn hàng vào cơ sở dữ liệu với trạng thái chờ thanh toán
+      await PendingOrder.create({
+        user_id,
+        transID: order.app_trans_id,
+        items: cart.items, // Lưu các sản phẩm đã được định dạng
+        total_price: finalPrice, // Tổng giá trị sau giảm giá
+        discount, // Giá trị giảm giá
+        coupon_code, // Mã giảm giá đã áp dụng
+        receiver_name,
+        receiver_phone,
+        receiver_email,
+        receiver_address,
+        note,
+      });
+
+      res.status(200).json({
+        message: "Order created successfully",
+        orderDetails: {
+          user_id,
+          app_id: order.app_id,
+          app_trans_id: order.app_trans_id,
+          amount: order.amount,
+          description: order.description,
+          paymentUrl: response.data.order_url,
+          app_time: order.app_time,
+          callback_url: order.callback_url,
+          embed_data: order.embed_data,
+        },
+      });
+    } else {
+      res.status(400).json({ message: "Failed to create order", data: response.data });
+    }
+  } catch (error) {
+    console.error("Error creating ZaloPay order:", error.message);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+
+
+
+const handleZaloPayCallback = (req, res) => {
+  let result = {};
+
+  try {
+    const dataStr = req.body.data;
+    const reqMac = req.body.mac;
+
+    // Tạo lại MAC từ dataStr và key2 để xác minh callback
+    const mac = CryptoJS.HmacSHA256(dataStr, config.key2).toString();
+
+    if (reqMac !== mac) {
+      result.return_code = -1;
+      result.return_message = 'Invalid MAC';
+    } else {
+      const dataJson = JSON.parse(dataStr);
+      console.log(`Update order status to success for app_trans_id = ${dataJson.app_trans_id}`);
+      
+      // Cập nhật trạng thái đơn hàng thành công trong cơ sở dữ liệu
+      result.return_code = 1;
+      result.return_message = 'Success';
+    }
+  } catch (error) {
+    console.error("Callback error:", error.message);
+    result.return_code = 0;
+    result.return_message = error.message;
+  }
+
+  res.json(result);
+};
+
+
+
+// Hàm kiểm tra trạng thái đơn hàng
+const checkOrderStatus = async (req, res) => {
+  const { app_trans_id } = req.body;
+
+  const postData = {
+    app_id: config.app_id,
+    app_trans_id,
+  };
+
+  // Chuỗi dữ liệu để tạo `MAC`
+  const data = `${postData.app_id}|${postData.app_trans_id}|${config.key1}`;
+  postData.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+
+  const postConfig = {
+    method: 'post',
+    url: 'https://sb-openapi.zalopay.vn/v2/query',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    data: require('qs').stringify(postData),
+  };
+
+  try {
+    const response = await axios(postConfig);
+    console.log("Order status:", response.data);
+
+    // Kiểm tra trạng thái thanh toán thành công từ phản hồi của ZaloPay
+    if (response.data.return_code === 1 && response.data.zp_trans_id) {
+      // Truy vấn đơn hàng tạm thời trong PendingOrder
+      const pendingOrder = await PendingOrder.findOne({ transID: app_trans_id });
+
+      if (pendingOrder) {
+        // Tạo một đơn hàng mới trong bảng Order từ thông tin của PendingOrder
+        const newOrder = new Order({
+          user_id: pendingOrder.user_id,
+          items: pendingOrder.items,
+          total_price: pendingOrder.total_price,
+          discount: pendingOrder.discount, // Giá trị giảm giá
+          coupon_code: pendingOrder.coupon_code, // Mã giảm giá đã áp dụng
+          receiver_name: pendingOrder.receiver_name,
+          receiver_phone: pendingOrder.receiver_phone,
+          receiver_email: pendingOrder.receiver_email,
+          receiver_address: pendingOrder.receiver_address,
+          payment_method: 'ZaloPay',
+          status: 'Paid',
+          note: pendingOrder.note,
+        });
+
+        // Lưu đơn hàng vào bảng Order và xóa khỏi PendingOrder
+        await newOrder.save();
+        await PendingOrder.deleteOne({ transID: app_trans_id });
+
+        // Xóa giỏ hàng của người dùng
+        await Cart.deleteOne({ user_id: pendingOrder.user_id });
+
+        // Gửi email xác nhận đơn hàng thành công
+        const mailOptions = {
+          from: process.env.EMAIL_USERNAME, // Địa chỉ email người gửi
+          to: pendingOrder.receiver_email, // Địa chỉ email người nhận
+          subject: `XÁC NHẬN THANH TOÁN #${newOrder._id}`,
+          html: `
+            <h3>Cảm ơn bạn đã đặt hàng!</h3>
+            <p>Đơn hàng của bạn đã được đặt thành công.</p>
+            <p><strong>Mã Đặt Hàng:</strong> ${newOrder._id}</p>
+            <p><strong>Tổng Tiền:</strong> ${newOrder.total_price.toLocaleString()} VND</p>
+            <p><strong>Giảm Giá:</strong> ${newOrder.discount.toLocaleString()} VND</p>
+            <p><strong>Địa Chỉ Nhận Hàng:</strong> ${newOrder.receiver_address}</p>
+            <p>Xin cảm ơn đã tin tưởng và sử dụng dịch vụ.</p>
+          `,
+        };
+
+        // Thực hiện gửi email
+        transporter.sendMail(mailOptions, (err, info) => {
+          if (err) {
+            console.error("Error sending email:", err.message);
+          } else {
+            console.log("Email sent:", info.response);
+          }
+        });
+
+        res.status(200).json({
+          message: "Order successfully processed and saved.",
+          order: newOrder,
+          zp_trans_id: response.data.zp_trans_id,
+        });
+      } else {
+        res.status(404).json({ message: "Pending order not found." });
+      }
+    } else {
+      res.status(400).json({
+        message: "Payment not successful or still pending.",
+        status: response.data,
+      });
+    }
+  } catch (error) {
+    console.error("Error checking order status:", error.message);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+
+// Lấy danh sách đơn hàng của người dùng
+const getUserOrders = async (req, res) => {
+  const user_id = req.user._id; // Lấy user_id từ req.user (đã có middleware auth)
+
+  try {
+    // Tìm tất cả các đơn hàng thuộc về người dùng hiện tại
+    const orders = await Order.find({ user_id }).sort({ created_at: -1 }); // Sắp xếp theo ngày đặt hàng mới nhất
+
+    if (!orders.length) {
+      return res.status(404).json({ message: 'No orders found for this user' });
+    }
+
+    // Trả về danh sách đơn hàng
+    res.status(200).json({
+      orders: orders.map((order) => ({
+        order_id: order._id,
+        items: order.items.map((item) => ({
+          product_id: item.product_id,
+          name: item.name,
+          img_url: item.img_url,
+          variants: item.variants.map((variant) => ({
+            color: variant.color,
+            size: variant.size,
+            price: variant.price,
+            quantity: variant.quantity,
+          })),
+        })),
+        total_price: order.total_price,
+        receiver_name: order.receiver_name,
+        receiver_phone: order.receiver_phone,
+        receiver_email: order.receiver_email,
+        receiver_address: order.receiver_address,
+        note: order.note,
+        status: order.status,
+        cancel_reason: order.cancel_reason,
+        canceled_by: order.canceled_by,
+        created_at: order.created_at,
+        updated_at: order.updated_at,
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching orders:', error.message);
+    res
+      .status(500)
+      .json({ message: 'Error fetching orders', error: error.message });
+  }
+};
+
+// Cập nhật thông tin đơn hàng
+const updateOrder = async (req, res) => {
+  const { orderId } = req.params; // Lấy orderId từ params
+  const {
+    receiver_name,
+    receiver_phone,
+    receiver_email,
+    receiver_address,
+    note,
+    status,
+    cancel_reason,
+  } = req.body; // Lấy thông tin từ body
+
+  const canceled_by = req.user._id; // Lấy thông tin user đang đăng nhập từ middleware auth
+
+  try {
+    // Tìm đơn hàng theo ID
+    const order = await Order.findById(orderId);
+
+    // Nếu không tìm thấy đơn hàng
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Kiểm tra trạng thái nếu muốn chuyển về "Canceled"
+    if (status === 'Canceled') {
+      if (order.status !== 'Pending' && order.status !== 'Paid') {
+        return res.status(400).json({ 
+          message: 'Đơn hàng hàng không thể hủy' 
+        });
+      }
+
+      // Chỉ cho phép chuyển trạng thái về "Canceled" khi có lý do hủy
+      if (!cancel_reason) {
+        return res.status(400).json({ message: 'Vui lòng nhập lý do hủy' });
+      }
+
+      order.status = 'Canceled';
+      order.cancel_reason = cancel_reason;
+      order.canceled_by = canceled_by;
+    } else {
+      // Cập nhật các thông tin khác của đơn hàng (nếu có)
+      order.receiver_name = receiver_name || order.receiver_name;
+      order.receiver_phone = receiver_phone || order.receiver_phone;
+      order.receiver_email = receiver_email || order.receiver_email;
+      order.receiver_address = receiver_address || order.receiver_address;
+      order.note = note || order.note;
+      order.status = status || order.status;
+    }
+
+    // Lưu lại thay đổi
+    const updatedOrder = await order.save();
+
+    res
+      .status(200)
+      .json({ message: 'Order updated successfully', order: updatedOrder });
+  } catch (error) {
+    console.error('Error updating order:', error.message);
+    res
+      .status(500)
+      .json({ message: 'Error updating order', error: error.message });
+  }
+};
+
+module.exports = {
+  placeOrder,
+  getUserOrders,
+  getAllOrders,
+  updateOrder,
+  createZaloPayOrder,
+  handleZaloPayCallback,
+  checkOrderStatus
+};

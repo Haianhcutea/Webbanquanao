@@ -54,14 +54,12 @@ const OurProductsNew = () => {
     if (activeTab) {
       getProductsByCategory(activeTab);
     }
-  }, [activeTab]);
+  }, [activeTab])
 
   // api lấy sản phẩm theo danh mục
   const getProductsByCategory = async (id) => {
     try {
-      const res = await axios.get(
-        `http://localhost:5555/api/product-category/${activeTab ?? id}`
-      );
+      const res = await axios.get(`http://localhost:5555/api/product-category/${activeTab ?? id}`);
 
       if (res && res.status === 200) {
         setProductByCategoryID(res.data);
@@ -73,23 +71,17 @@ const OurProductsNew = () => {
     <div className="tab-slider-wrapper">
       {/*=======  tab product navigation  =======*/}
       <div className="tab-product-navigation">
-        <div
-          className="nav nav-tabs justify-content-center"
-          id="nav-tab2"
-          role="tablist"
-        >
+        <div className="nav nav-tabs justify-content-center" id="nav-tab2" role="tablist">
           {categories.map((category) => (
             <a
               key={category._id} // Đặt key duy nhất cho mỗi tab
-              className={`nav-item nav-link ${
-                activeTab === category._id ? "active" : ""
-              }`} // Thêm class active nếu tab đang được chọn
+              className={`nav-item nav-link ${activeTab === category._id ? "active" : ""}`} // Thêm class active nếu tab đang được chọn
               id={`product-tab-${category._id}`}
               onClick={() => handleTabClick(category._id)} // Gọi hàm khi tab được click
               role="tab"
               aria-selected={activeTab === category._id}
               // href={`#product-series-${category._id}`}
-            >
+              >
               {category.name}
             </a>
           ))}
@@ -104,8 +96,7 @@ const OurProductsNew = () => {
             className={`tab-pane fade ${index === 0 ? "show active" : ""}`} // Tab đầu tiên sẽ có class active
             id={`product-series-${category._id}`} // Sử dụng ID của category
             role="tabpanel"
-            aria-labelledby={`product-tab-${category._id}`}
-          >
+            aria-labelledby={`product-tab-${category._id}`}>
             {/*=======  single row slider wrapper  =======*/}
             <div className="single-row-slider-wrapper slider-gap--30">
               <Slider {...sliderSettings}>
@@ -118,20 +109,8 @@ const OurProductsNew = () => {
                       <div className="single-grid-product">
                         <div className="single-grid-product__image">
                           <a href="javascript:void(0)">
-                            <img
-                              width={600}
-                              height={800}
-                              src={product.image}
-                              className="img-fluid"
-                              alt=""
-                            />
-                            <img
-                              width={600}
-                              height={800}
-                              src={product.image2}
-                              className="img-fluid"
-                              alt=""
-                            />
+                            <img width={600} height={800} src={product.image} className="img-fluid" alt="" />
+                            <img width={600} height={800} src={product.image2} className="img-fluid" alt="" />
                           </a>
                           <div className="hover-icons">
                             <a href="javascript:void(0)">
@@ -143,11 +122,7 @@ const OurProductsNew = () => {
                             <a href="javascript:void(0)">
                               <i className="ion-android-options" />
                             </a>
-                            <a
-                              href="javascript:void(0)"
-                              data-bs-toggle="modal"
-                              data-bs-target="#quick-view-modal-container"
-                            >
+                            <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#quick-view-modal-container">
                               <i className="ion-android-open" />
                             </a>
                           </div>
@@ -159,24 +134,12 @@ const OurProductsNew = () => {
                             </span>
                             <span className="rating">
                               {/* Giả định có rating cho sản phẩm */}
-                              {Array.from(
-                                { length: product.rating },
-                                (_, i) => (
-                                  <i
-                                    key={i}
-                                    className="ion-android-star active"
-                                  />
-                                )
-                              )}
-                              {Array.from(
-                                { length: 5 - product.rating },
-                                (_, i) => (
-                                  <i
-                                    key={i}
-                                    className="ion-android-star-outline"
-                                  />
-                                )
-                              )}
+                              {Array.from({ length: product.rating }, (_, i) => (
+                                <i key={i} className="ion-android-star active" />
+                              ))}
+                              {Array.from({ length: 5 - product.rating }, (_, i) => (
+                                <i key={i} className="ion-android-star-outline" />
+                              ))}
                             </span>
                           </div>
                           <h3 className="single-grid-product__title">

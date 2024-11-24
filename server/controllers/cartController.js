@@ -113,11 +113,130 @@ const getCartDetails = async (req, res) => {
     res.status(500).json({ message: 'Error fetching cart details', error: error.message });
   }
 };
-  
+
+const updateCart = async (req, res) => {
+  const user_id = req.user._id; // Lấy user_id từ req.user (đã có middleware auth)
+  const { product_id, variant } = req.body; // `variant` chứa thông tin biến thể cần cập nhật
+
+  try {
+    // Tìm giỏ hàng của người dùng
+    const cart = await Cart.findOne({ user_id });
+
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+
+    // Tìm sản phẩm trong giỏ hàng
+    const itemIndex = cart.items.findIndex(item => item.product_id.toString() === product_id);
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: 'Product not found in cart' });
+    }
+
+    // Tìm biến thể trong sản phẩm
+    const variantIndex = cart.items[itemIndex].variants.findIndex(
+      v => v.color === variant.color && v.size === variant.size
+    );
+
+    if (variantIndex === -1) {
+      return res.status(404).json({ message: 'Variant not found in cart' });
+    }
+
+    // Cập nhật số lượng của biến thể
+    cart.items[itemIndex].variants[variantIndex].quantity = variant.quantity;
+
+    // Xóa biến thể nếu số lượng <= 0
+    if (cart.items[itemIndex].variants[variantIndex].quantity <= 0) {
+      cart.items[itemIndex].variants.splice(variantIndex, 1);
+    }
+
+    // Xóa sản phẩm nếu không còn biến thể nào
+    if (cart.items[itemIndex].variants.length === 0) {
+      cart.items.splice(itemIndex, 1);
+    }
+
+    // Cập nhật tổng tiền và tổng số lượng
+    cart.total_price = cart.items.reduce((total, item) => {
+      return total + item.variants.reduce((variantTotal, v) => variantTotal + v.price * v.quantity, 0);
+    }, 0);
+
+    cart.total_items = cart.items.reduce((total, item) => {
+      return total + item.variants.reduce((variantTotal, v) => variantTotal + v.quantity, 0);
+    }, 0);
+
+    // Lưu giỏ hàng
+    await cart.save();
+
+    return res.status(200).json({ message: 'Cart updated', cart });
+  } catch (error) {
+    console.error('Error updating cart:', error.message);
+    return res.status(500).json({ message: 'Error updating cart', error: error.message });
+  }
+};
+
+ 
+const deleteVariantFromCart = async (req, res) => {
+  const user_id = req.user._id; // Lấy user_id từ req.user (đã có middleware auth)
+  const { product_id, variant } = req.body; // Lấy `product_id` và thông tin biến thể từ request body
+
+  try {
+    // Tìm giỏ hàng của người dùng
+    const cart = await Cart.findOne({ user_id });
+
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+
+    // Tìm sản phẩm trong giỏ hàng
+    const itemIndex = cart.items.findIndex(item => item.product_id.toString() === product_id);
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: 'Product not found in cart' });
+    }
+
+    // Tìm biến thể trong sản phẩm
+    const variantIndex = cart.items[itemIndex].variants.findIndex(
+      v => v.color === variant.color && v.size === variant.size
+    );
+
+    if (variantIndex === -1) {
+      return res.status(404).json({ message: 'Variant not found in cart' });
+    }
+
+    // Xóa biến thể khỏi sản phẩm
+    cart.items[itemIndex].variants.splice(variantIndex, 1);
+
+    // Xóa sản phẩm nếu không còn biến thể nào
+    if (cart.items[itemIndex].variants.length === 0) {
+      cart.items.splice(itemIndex, 1);
+    }
+
+    // Cập nhật tổng tiền và tổng số lượng
+    cart.total_price = cart.items.reduce((total, item) => {
+      return total + item.variants.reduce((variantTotal, v) => variantTotal + v.price * v.quantity, 0);
+    }, 0);
+
+    cart.total_items = cart.items.reduce((total, item) => {
+      return total + item.variants.reduce((variantTotal, v) => variantTotal + v.quantity, 0);
+    }, 0);
+
+    // Lưu giỏ hàng
+    await cart.save();
+
+    return res.status(200).json({ message: 'Variant removed from cart', cart });
+  } catch (error) {
+    console.error('Error removing variant from cart:', error.message);
+    return res.status(500).json({ message: 'Error removing variant from cart', error: error.message });
+  }
+};
+
+
 
 module.exports = {
   addToCart,
-  getCartDetails
+  getCartDetails,
+  updateCart,
+  deleteVariantFromCart
 };
 
 

@@ -43,7 +43,6 @@
     padding: 10px; /* Có thể điều chỉnh padding */
     box-sizing: border-box; /* Để padding không làm ảnh hưởng đến chiều rộng tổng */
   }
-<<<<<<< HEAD
   
   /* style product detail  */
 
@@ -62,6 +61,21 @@
   .login-form .ant-input {
     margin: 0;
   }
-=======
-  
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
+
+  /* style admin */
+  :where(.css-dev-only-do-not-override-vryruh).ant-layout-sider{
+    background: #fff;
+  }
+
+  :where(.css-dev-only-do-not-override-vryruh).ant-layout-sider .ant-layout-sider-trigger  {
+    background: #ebebeb;
+  }
+
+  :where(.css-dev-only-do-not-override-vryruh).ant-form-item {
+    margin-bottom: 16px;
+  }
+
+  .ant-input-number, .ant-picker, .ant-select {
+    max-width: 100%;
+    width: 100%;
+  }

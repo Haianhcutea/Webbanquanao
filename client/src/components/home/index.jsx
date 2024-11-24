@@ -26,10 +26,6 @@ import support247 from "@/assets/img/icons/support247.webp";
 
 //
 
-import slider_1 from "@/assets/img/blog/slider/1-370x235.webp";
-import slider_2 from "@/assets/img/blog/slider/2-370x235.webp";
-import slider_3 from "@/assets/img/blog/slider/3-370x235.webp";
-
 import OurProducts from "./OurProducts";
 import { useSelector } from "react-redux";
 
@@ -70,10 +66,8 @@ const Home = () => {
         speed: 1000,
         infinite: true,
         arrows: true,
-        prevArrow:
-          "<button type='button' class='slick-prev'><i class='ion-ios-arrow-left'></i></button>",
-        nextArrow:
-          "<button type='button' class='slick-next'><i class='ion-ios-arrow-right'></i></button>",
+        prevArrow: "<button type='button' class='slick-prev'><i class='ion-ios-arrow-left'></i></button>",
+        nextArrow: "<button type='button' class='slick-next'><i class='ion-ios-arrow-right'></i></button>",
         responsive: [
           { breakpoint: 1501, settings: { slidesToShow: 1 } },
           { breakpoint: 1199, settings: { slidesToShow: 1, arrows: false } },
@@ -120,21 +114,12 @@ const Home = () => {
                         <div className="row">
                           <div className="col-lg-12">
                             <div className="hero-slider-content hero-slider-content--left-space">
-                              <p className="slider-title slider-title--big-light">
-                                AMAZING PRODUCT!
-                              </p>
-                              <p className="slider-title slider-title--big-bold">
-                                WALL CLOCK
-                              </p>
+                              <p className="slider-title slider-title--big-light">AMAZING PRODUCT!</p>
+                              <p className="slider-title slider-title--big-bold">WALL CLOCK</p>
                               <p className="slider-title slider-title--small">
-                                Let your Wall reflect the luxurious side of you
-                                with our Unique Design 24ct.gold plated Wall
-                                Clock.
+                                Let your Wall reflect the luxurious side of you with our Unique Design 24ct.gold plated Wall Clock.
                               </p>
-                              <a
-                                className="hero-slider-button"
-                                href="javascript:void(0)"
-                              >
+                              <a className="hero-slider-button" href="javascript:void(0)">
                                 <i className="ion-ios-plus-empty" /> SHOP NOW
                               </a>
                             </div>
@@ -151,20 +136,10 @@ const Home = () => {
                         <div className="row">
                           <div className="col-lg-12">
                             <div className="hero-slider-content hero-slider-content--left-space">
-                              <p className="slider-title slider-title--big-light">
-                                AMAZING PRODUCT!
-                              </p>
-                              <p className="slider-title slider-title--big-bold">
-                                DECOR CHAIR
-                              </p>
-                              <p className="slider-title slider-title--small">
-                                An elegant selection of chairs combining comfort
-                                & practicality.
-                              </p>
-                              <a
-                                className="hero-slider-button"
-                                href="javascript:void(0)"
-                              >
+                              <p className="slider-title slider-title--big-light">AMAZING PRODUCT!</p>
+                              <p className="slider-title slider-title--big-bold">DECOR CHAIR</p>
+                              <p className="slider-title slider-title--small">An elegant selection of chairs combining comfort & practicality.</p>
+                              <a className="hero-slider-button" href="javascript:void(0)">
                                 <i className="ion-ios-plus-empty" /> SHOP NOW
                               </a>
                             </div>
@@ -181,20 +156,12 @@ const Home = () => {
                         <div className="row">
                           <div className="col-lg-12">
                             <div className="hero-slider-content hero-slider-content--left-space">
-                              <p className="slider-title slider-title--big-light">
-                                WALNUT TIME SIGNAL
-                              </p>
-                              <p className="slider-title slider-title--big-bold">
-                                WALL CLOCK
-                              </p>
+                              <p className="slider-title slider-title--big-light">WALNUT TIME SIGNAL</p>
+                              <p className="slider-title slider-title--big-bold">WALL CLOCK</p>
                               <p className="slider-title slider-title--small">
-                                A striking centrepiece is conveyed through this
-                                Clock's integration with any modern style.
+                                A striking centrepiece is conveyed through this Clock's integration with any modern style.
                               </p>
-                              <a
-                                className="theme-button hero-slider-button"
-                                href="javascript:void(0)"
-                              >
+                              <a className="theme-button hero-slider-button" href="javascript:void(0)">
                                 <i className="ion-ios-plus-empty" /> SHOP NOW
                               </a>
                             </div>
@@ -222,20 +189,13 @@ const Home = () => {
                     <div className="single-category-item">
                       <div className="single-category-item__image">
                         <a href="javascript:void(0)">
-                          <img
-                            width={375}
-                            height={550}
-                            src={category_1}
-                            className="img-fluid"
-                            alt=""
-                          />
+                          <img width={375} height={550} src={category_1} className="img-fluid" alt="" />
                         </a>
                       </div>
                       <div className="single-category-item__content">
                         <h3 className="title">Storage</h3>
                         <a href="javascript:void(0)">
-                          Shop Now{" "}
-                          <i className="ion-android-arrow-dropright-circle" />
+                          Shop Now <i className="ion-android-arrow-dropright-circle" />
                         </a>
                       </div>
                     </div>
@@ -246,20 +206,13 @@ const Home = () => {
                     <div className="single-category-item">
                       <div className="single-category-item__image">
                         <a href="javascript:void(0)">
-                          <img
-                            width={380}
-                            height={265}
-                            src={category_2}
-                            className="img-fluid"
-                            alt=""
-                          />
+                          <img width={380} height={265} src={category_2} className="img-fluid" alt="" />
                         </a>
                       </div>
                       <div className="single-category-item__content">
                         <h3 className="title">Lighting</h3>
                         <a href="javascript:void(0)">
-                          Shop Now{" "}
-                          <i className="ion-android-arrow-dropright-circle" />
+                          Shop Now <i className="ion-android-arrow-dropright-circle" />
                         </a>
                       </div>
                     </div>
@@ -276,8 +229,7 @@ const Home = () => {
                       <div className="single-category-item__content">
                         <h3 className="title">Decoration</h3>
                         <a href="javascript:void(0)">
-                          Shop Now{" "}
-                          <i className="ion-android-arrow-dropright-circle" />
+                          Shop Now <i className="ion-android-arrow-dropright-circle" />
                         </a>
                       </div>
                     </div>
@@ -288,20 +240,13 @@ const Home = () => {
                     <div className="single-category-item">
                       <div className="single-category-item__image">
                         <a href="javascript:void(0)">
-                          <img
-                            width={380}
-                            height={265}
-                            src={category_4}
-                            className="img-fluid"
-                            alt=""
-                          />
+                          <img width={380} height={265} src={category_4} className="img-fluid" alt="" />
                         </a>
                       </div>
                       <div className="single-category-item__content">
                         <h3 className="title">Living Room</h3>
                         <a href="javascript:void(0)">
-                          Shop Now{" "}
-                          <i className="ion-android-arrow-dropright-circle" />
+                          Shop Now <i className="ion-android-arrow-dropright-circle" />
                         </a>
                       </div>
                     </div>
@@ -323,8 +268,7 @@ const Home = () => {
               <div className="section-title-wrapper text-center section-space--half">
                 <h2 className="section-title">Sản phẩm của tôi</h2>
                 <p className="section-subtitle">
-                  Mirum est notare quam littera gothica, quam nunc putamus parum
-                  claram anteposuerit litterarum formas.
+                  Mirum est notare quam littera gothica, quam nunc putamus parum claram anteposuerit litterarum formas.
                 </p>
               </div>
               {/*=======  End of section title  =======*/}
@@ -371,33 +315,15 @@ const Home = () => {
                               author: "Magdalena Valencia",
                             },
                           ].map((testimonial, index) => (
-                            <div
-                              className="single-testimonial-item row"
-                              key={index}
-                            >
+                            <div className="single-testimonial-item row" key={index}>
                               <div className="col-lg-8 mx-auto">
                                 <div className="single-testimonial-item__image">
-                                  <img
-                                    width={72}
-                                    height={72}
-                                    src={testimonial.image}
-                                    className="img-fluid"
-                                    alt=""
-                                  />
+                                  <img width={72} height={72} src={testimonial.image} className="img-fluid" alt="" />
                                 </div>
                                 <div className="single-testimonial-item__content">
-                                  <p className="testimonial-text">
-                                    {testimonial.text}
-                                  </p>
-                                  <img
-                                    width={29}
-                                    height={22}
-                                    src={icon_testimonials}
-                                    alt=""
-                                  />
-                                  <p className="testimonial-author">
-                                    {testimonial.author}
-                                  </p>
+                                  <p className="testimonial-text">{testimonial.text}</p>
+                                  <img width={29} height={22} src={icon_testimonials} alt="" />
+                                  <p className="testimonial-author">{testimonial.author}</p>
                                 </div>
                               </div>
                             </div>
@@ -423,8 +349,7 @@ const Home = () => {
               <div className="section-title-wrapper text-center section-space--half">
                 <h2 className="section-title">Sản phẩm mới nhất</h2>
                 <p className="section-subtitle">
-                  Mirum est notare quam littera gothica, quam nunc putamus parum
-                  claram anteposuerit litterarum formas.
+                  Mirum est notare quam littera gothica, quam nunc putamus parum claram anteposuerit litterarum formas.
                 </p>
               </div>
               {/*=======  End of section title  =======*/}
@@ -455,13 +380,7 @@ const Home = () => {
                     <div className="single-hover-banner">
                       <div className="single-hover-banner__image">
                         <a href="javascript:void(0)">
-                          <img
-                            width={570}
-                            height={319}
-                            src={banners_1}
-                            className="img-fluid"
-                            alt=""
-                          />
+                          <img width={570} height={319} src={banners_1} className="img-fluid" alt="" />
                         </a>
                         <div className="single-hover-banner__content">
                           <h4 className="small-text">Black Friday</h4>
@@ -479,19 +398,11 @@ const Home = () => {
                     <div className="single-hover-banner">
                       <div className="single-hover-banner__image">
                         <a href="javascript:void(0)">
-                          <img
-                            width={570}
-                            height={319}
-                            src={banners_2}
-                            className="img-fluid"
-                            alt=""
-                          />
+                          <img width={570} height={319} src={banners_2} className="img-fluid" alt="" />
                         </a>
                         <div className="single-hover-banner__content">
                           <h4 className="small-text">Best Selling !</h4>
-                          <h3 className="big-text">
-                            Living Room Up To 70% Off
-                          </h3>
+                          <h3 className="big-text">Living Room Up To 70% Off</h3>
                           <a className="banner-link" href="javascript:void(0)">
                             SHOP NOW
                           </a>
@@ -519,20 +430,11 @@ const Home = () => {
                     {/*=======  single feature logo  =======*/}
                     <div className="single-feature-logo">
                       <div className="single-feature-logo__image">
-                        <img
-                          width={51}
-                          height={52}
-                          src={free_shipping}
-                          className="img-fluid"
-                          alt=""
-                        />
+                        <img width={51} height={52} src={free_shipping} className="img-fluid" alt="" />
                       </div>
                       <div className="single-feature-logo__content">
                         <h4 className="title">FREE SHIPPING WORLDWIDE</h4>
-                        <p className="short-desc">
-                          We offer free shipping via Standard Shipping on orders
-                          over $200.00
-                        </p>
+                        <p className="short-desc">We offer free shipping via Standard Shipping on orders over $200.00</p>
                       </div>
                     </div>
                     {/*=======  End of single feature logo  =======*/}
@@ -541,20 +443,11 @@ const Home = () => {
                     {/*=======  single feature logo  =======*/}
                     <div className="single-feature-logo">
                       <div className="single-feature-logo__image">
-                        <img
-                          width={52}
-                          height={52}
-                          src={money_back}
-                          className="img-fluid"
-                          alt=""
-                        />
+                        <img width={52} height={52} src={money_back} className="img-fluid" alt="" />
                       </div>
                       <div className="single-feature-logo__content">
                         <h4 className="title">MONEY BACK GUARANTEE</h4>
-                        <p className="short-desc">
-                          If you're not satisfied with our product, we'll refund
-                          the purchase price*.
-                        </p>
+                        <p className="short-desc">If you're not satisfied with our product, we'll refund the purchase price*.</p>
                       </div>
                     </div>
                     {/*=======  End of single feature logo  =======*/}
@@ -563,20 +456,11 @@ const Home = () => {
                     {/*=======  single feature logo  =======*/}
                     <div className="single-feature-logo">
                       <div className="single-feature-logo__image">
-                        <img
-                          width={41}
-                          height={53}
-                          src={support247}
-                          className="img-fluid"
-                          alt=""
-                        />
+                        <img width={41} height={53} src={support247} className="img-fluid" alt="" />
                       </div>
                       <div className="single-feature-logo__content">
                         <h4 className="title">ONLINE SUPPORT 24/7</h4>
-                        <p className="short-desc">
-                          Our friendly support team is available to help you 24
-                          hours a day, seven days a week
-                        </p>
+                        <p className="short-desc">Our friendly support team is available to help you 24 hours a day, seven days a week</p>
                       </div>
                     </div>
                     {/*=======  End of single feature logo  =======*/}
