@@ -11,7 +11,7 @@ import axios from "axios";
 const CheckoutResult = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-//
+
   const [data, setData] = useState(null);
   const token = localStorage.getItem("token");
   const userInfor = JSON.parse(localStorage.getItem("user"));
@@ -33,8 +33,6 @@ const CheckoutResult = () => {
 
       const res = await axios.post(`http://localhost:5555/api/check-status-order`, payload);
       if (res.status === 200) {
-        console.log(res.data, "!111111");
-
         setData(res.data);
       }
     } catch (error) {
