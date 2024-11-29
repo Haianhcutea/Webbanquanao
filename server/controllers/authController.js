@@ -69,4 +69,32 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+
+// Lấy thông tin người dùng theo ID
+const getUserById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Tìm người dùng theo ID
+    const user = await User.findById(id);
+
+    if (user) {
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        active: user.active,
+        addresses: user.addresses,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
+      });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving user', error: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, getUserById };

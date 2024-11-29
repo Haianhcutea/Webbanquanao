@@ -67,27 +67,25 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api', Route);
 
 (async () => {
-  // Khởi tạo localtunnel trên cổng 5555
   const tunnel = await localtunnel({ port: 5555 });
   console.log(`Tunnel URL: ${tunnel.url}`);
 
-  // Đọc file .env và cập nhật CALLBACK_URL
+  // Cập nhật giá trị CALLBACK_URL trong file .env
+  const newCallbackUrl = `${tunnel.url}/callback`;
   let envConfig = fs.readFileSync('.env', 'utf8').split('\n');
-  const callbackUrlLine = `CALLBACK_URL=${tunnel.url}/callback`;
-
-  // Kiểm tra nếu CALLBACK_URL đã tồn tại, thì cập nhật nó
   const callbackIndex = envConfig.findIndex((line) => line.startsWith('CALLBACK_URL='));
   if (callbackIndex !== -1) {
-    envConfig[callbackIndex] = callbackUrlLine;
+    envConfig[callbackIndex] = `CALLBACK_URL=${newCallbackUrl}`;
   } else {
-    envConfig.push(callbackUrlLine); // Thêm CALLBACK_URL nếu chưa có
+    envConfig.push(`CALLBACK_URL=${newCallbackUrl}`);
   }
-
-  // Ghi lại vào file .env
   fs.writeFileSync('.env', envConfig.join('\n'));
 
-  console.log(`CALLBACK_URL updated to: ${tunnel.url}/callback`);
+  // Ghi giá trị mới vào biến toàn cục
+  global.CALLBACK_URL = newCallbackUrl;
+  console.log(`CALLBACK_URL updated to: ${global.CALLBACK_URL}`);
 })();
+
 
 // Khởi động server
 const PORT = process.env.PORT || 5555;
