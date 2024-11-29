@@ -8,13 +8,6 @@ const categorySchema = new mongoose.Schema({
   updated_at: { type: Date, default: Date.now }
 });
 
-<<<<<<< HEAD
-=======
-// tesst commit 
-
-
-
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
 const Category = mongoose.model('Category', categorySchema);
 
 module.exports = Category;
