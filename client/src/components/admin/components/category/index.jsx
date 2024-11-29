@@ -66,7 +66,7 @@ const CategoriesAdmin = () => {
       ellipsis: true,
     },
     {
-      title: "Chức Năng",
+      title: "Chức năng",
       key: "actions",
       render: (text, record) => (
         <span style={{ display: "flex", gap: 16, justifyContent: "center" }}>

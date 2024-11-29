@@ -1,22 +1,39 @@
 /** @format */
 
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Breadcumb from "../layouts/breadcumb";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Form, Input, Radio } from "antd";
 import { formatCurrency, NotificationContext, openNotificationWithIcon } from "../../App";
 import axios from "axios";
-import { addCartPayment } from "../../store/cart";
 
 const Checkout = () => {
+  const location = useLocation();
+  const { totalAmount, discountAmount, shippingFee, finalTotal, coupon_code } = location.state || {};
+
   const api = useContext(NotificationContext);
   const token = localStorage.getItem("token");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const cartByUserID = useSelector((state) => state.cart);
+  const userInfor = JSON.parse(localStorage.getItem("user")) ?? "";
 
-  console.log(cartByUserID, "111");
+  console.log(userInfor);
+
+  useEffect(() => {
+    const newDataReceive = {
+      receiver_name: userInfor.name || "",
+      receiver_phone: "", // Số điện thoại nếu có, thay "" bằng giá trị cụ thể.
+      receiver_email: userInfor.email || "",
+      receiver_address: userInfor.addresses[0] || "HA NOI, VIET NAM", // Lấy địa chỉ đầu tiên.
+      description: "",
+      note: "",
+    }
+
+    formCheckout.setFieldsValue(newDataReceive);
+  }, [])
+  
 
   const [formCheckout] = Form.useForm();
 
@@ -36,7 +53,7 @@ const Checkout = () => {
           if (values.bank_code === "cod") {
             response = await axios.post(
               `http://localhost:5555/api/place-order`,
-              { ...values },
+              { ...values, coupon_code },
               {
                 headers: { Authorization: `Bearer ${token}` },
               }
@@ -50,7 +67,8 @@ const Checkout = () => {
           } else if (values.bank_code === "zalopayapp") {
             response = await axios.post(
               `http://localhost:5555/api/place-order-zalo`,
-              { ...values, amount: cartByUserID?.total_price },
+              // { ...values, amount: cartByUserID?.total_price, coupon_code },
+              { ...values, coupon_code },
               {
                 headers: { Authorization: `Bearer ${token}` },
               }
@@ -144,15 +162,20 @@ const Checkout = () => {
                               ))
                             )}
                           </ul>
-
                           <p>
-                            Tổng tiền <span>{formatCurrency(cartByUserID.cartData.reduce((total, product) => total + product.variant.reduce((subtotal, variant) => subtotal + variant.price * variant.quantity, 0), 0))}</span>
+                            Phí ship <span>+ 30.000</span>
                           </p>
                           <p>
-                            Phí ship <span>30.000</span>
+                            Giảm giá <span>- {discountAmount}</span>
                           </p>
+                          <p>
+                            {/* Tổng tiền <span>{formatCurrency(cartByUserID.cartData.reduce((total, product) => total + product.variant.reduce((subtotal, variant) => subtotal + variant.price * variant.quantity, 0), 0))}</span> */}
+                            Tổng tiền <span>+ {totalAmount}</span>
+                          </p>
+                         
                           <h4>
-                            Tổng cộng <span>{formatCurrency(cartByUserID.cartData.reduce((total, product) => total + product.variant.reduce((subtotal, variant) => subtotal + variant.price * variant.quantity, 0), 0))}</span>
+                            {/* Tổng cộng <span>{formatCurrency(cartByUserID.cartData.reduce((total, product) => total + product.variant.reduce((subtotal, variant) => subtotal + variant.price * variant.quantity, 0), 0))}</span> */}
+                            Tổng cộng <span>{finalTotal}</span>
                           </h4>
                         </div>
 
@@ -183,5 +206,5 @@ const Checkout = () => {
     </div>
   );
 };
-//test
+
 export default Checkout;

@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
+
 import Slider from "react-slick";
 import { Tabs } from "antd";
+
 //
 import products_3 from "@/assets/img/products/3-600x800.webp";
 import products_3_1 from "@/assets/img/products/3_1-600x800.webp";
 import { useSelector } from "react-redux";
 import axios from "axios";
+
 const OurProductsNew = () => {
   const categories = useSelector((state) => state.category.listCategory);
+
   const sliderSettings = {
     slidesToShow: 4, // Hiển thị 4 slide cùng lúc
     slidesToScroll: 1, // Di chuyển 1 slide mỗi lần cuộn
@@ -37,26 +41,32 @@ const OurProductsNew = () => {
       { breakpoint: 479, settings: { slidesToShow: 1, arrows: false } }, // Dưới 479px: 1 slide
     ],
   };
+
   const [activeTab, setActiveTab] = useState(categories[0]?._id);
   const [productByCategoryID, setProductByCategoryID] = useState([]);
+
   // Hàm xử lý khi một tab được click
   const handleTabClick = (id) => {
     setActiveTab(id); // Cập nhật state với ID của tab được click
   };
+
   useEffect(() => {
     if (activeTab) {
       getProductsByCategory(activeTab);
     }
   }, [activeTab])
+
   // api lấy sản phẩm theo danh mục
   const getProductsByCategory = async (id) => {
     try {
       const res = await axios.get(`http://localhost:5555/api/product-category/${activeTab ?? id}`);
+
       if (res && res.status === 200) {
         setProductByCategoryID(res.data);
       }
     } catch (error) {}
   };
+
   return (
     <div className="tab-slider-wrapper">
       {/*=======  tab product navigation  =======*/}
@@ -98,7 +108,7 @@ const OurProductsNew = () => {
                       {/* Single product */}
                       <div className="single-grid-product">
                         <div className="single-grid-product__image">
-                          <a href="single-product.html">
+                          <a href="javascript:void(0)">
                             <img width={600} height={800} src={product.image} className="img-fluid" alt="" />
                             <img width={600} height={800} src={product.image2} className="img-fluid" alt="" />
                           </a>
@@ -120,7 +130,7 @@ const OurProductsNew = () => {
                         <div className="single-grid-product__content">
                           <div className="single-grid-product__category-rating">
                             <span className="category">
-                              <a href="shop-left-sidebar.html">{category.name}</a>
+                              <a href="javascript:void(0)">{category.name}</a>
                             </span>
                             <span className="rating">
                               {/* Giả định có rating cho sản phẩm */}
@@ -133,7 +143,7 @@ const OurProductsNew = () => {
                             </span>
                           </div>
                           <h3 className="single-grid-product__title">
-                            <a href="single-product.html">{product.title}</a>
+                            <a href="javascript:void(0)">{product.title}</a>
                           </h3>
                           <p className="single-grid-product__price">
                             <span className="main-price">${product.price}</span>
@@ -150,8 +160,10 @@ const OurProductsNew = () => {
           </div>
         ))}
       </div>
+
       {/*=======  End of tab product content  =======*/}
     </div>
   );
 };
+
 export default OurProductsNew;

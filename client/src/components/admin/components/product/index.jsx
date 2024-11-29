@@ -323,7 +323,7 @@ const ProductsAdmin = () => {
             <Col>
               <Form.Item
                 name="image"
-                label="Ảnh "
+                label="Ảnh"
                 valuePropName="fileList"
                 getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}>
                 <Upload listType="picture-card" fileList={fileList} onPreview={handlePreview} onChange={handleChange} beforeUpload={beforeUpload}>
@@ -358,7 +358,7 @@ const ProductsAdmin = () => {
           {(fields, { add, remove }, { errors }) => (
             <>
               {fields.map((field, index) => (
-                <Row key={index} gutter={16} >
+                <Row key={index} gutter={16}>
                   <Col span={4}>
                     <Form.Item
                       {...field}
