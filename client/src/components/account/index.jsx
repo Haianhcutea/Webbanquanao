@@ -36,21 +36,11 @@ const MyAccount = () => {
                     {/* My Account Tab Menu Start */}
                     <div className="col-lg-3 col-12">
                       <div className="myaccount-tab-menu nav" role="tablist">
-                      <a
-          href="#dashboad"
-          className={activeTab === "dashboad" ? "active" : ""}
-          data-bs-toggle="tab"
-          onClick={() => setActiveTab("dashboad")}
-        >
+                        <a href="#dashboad" className={activeTab === "dashboad" ? "active" : ""} data-bs-toggle="tab" onClick={() => setActiveTab("dashboad")}>
                           <i className="fa fa-dashboard" />
                           Tổng quan
                         </a>
-                        <a
-          href="#orders"
-          data-bs-toggle="tab"
-          className={activeTab === "orders" ? "active" : ""}
-          onClick={() => setActiveTab("orders")}
-        >
+                        <a href="#orders" data-bs-toggle="tab" className={activeTab === "orders" ? "active" : ""} onClick={() => setActiveTab("orders")}>
                           <i className="fa fa-cart-arrow-down" />
                           Đơn hàng
                         </a>
@@ -105,7 +95,7 @@ const MyAccount = () => {
                         {/* Single Tab Content End */}
                         {/* Single Tab Content Start */}
                         <div className="tab-pane fade" id="orders" role="tabpanel">
-                          <DonHang activeTab={activeTab}/>
+                          <DonHang activeTab={activeTab} />
                         </div>
                         {/* Single Tab Content End */}
                         {/* Single Tab Content Start */}
@@ -222,5 +212,5 @@ const MyAccount = () => {
     </div>
   );
 };
-//tesst
+
 export default MyAccount;
