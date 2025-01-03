@@ -27,7 +27,7 @@ const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: 'user',
         active: user.active,
         addresses: user.addresses,
         created_at: user.created_at,
