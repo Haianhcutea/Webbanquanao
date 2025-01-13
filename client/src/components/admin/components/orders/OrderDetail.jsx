@@ -1,16 +1,34 @@
 /** @format */
 
-import { Card, Col, Descriptions, Row, Table, Tag, Button, Modal, Form, Input, Select } from "antd";
-import React, { useContext, useState } from "react";
+import {
+  Card,
+  Col,
+  Descriptions,
+  Row,
+  Table,
+  Tag,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+} from "antd";
+import React, { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { formatCurrency, NotificationContext, openNotificationWithIcon } from "../../../../App";
+import {
+  formatCurrency,
+  NotificationContext,
+  openNotificationWithIcon,
+} from "../../../../App";
 import { useSelector } from "react-redux";
 
 const OrderDetailAdmin = () => {
   const api = useContext(NotificationContext);
   const orderStatus = useSelector((state) => state.cart.orderStatus);
+
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [listDataUser, setListDataUser] = useState([]);
   const tokenAdmin = localStorage.getItem("tokenAdmin");
 
   const location = useLocation();
@@ -22,7 +40,12 @@ const OrderDetailAdmin = () => {
   }
 
   // Thiết lập màu cho trạng thái
-  const statusColor = order.status === "pending" ? "orange" : order.status === "completed" ? "green" : "red";
+  const statusColor =
+    order.status === "pending"
+      ? "orange"
+      : order.status === "completed"
+      ? "green"
+      : "red";
 
   // Cấu trúc dữ liệu bảng sản phẩm
   const productColumns = [
@@ -31,7 +54,13 @@ const OrderDetailAdmin = () => {
       title: "Ảnh",
       dataIndex: "img_url",
       key: "img_url",
-      render: (url) => <img src={`http://localhost:5555${url}`} alt="product" style={{ width: 32 }} />,
+      render: (url) => (
+        <img
+          src={`http://localhost:5555${url}`}
+          alt="product"
+          style={{ width: 32 }}
+        />
+      ),
     },
     {
       title: "Biến thể",
@@ -40,7 +69,8 @@ const OrderDetailAdmin = () => {
         <ul>
           {record.variants.map((variant, idx) => (
             <li key={idx}>
-              Màu: {variant.color}, Size: {variant.size}, Giá: {variant.price} VNĐ, SL: {variant.quantity}
+              Màu: {variant.color}, Size: {variant.size}, Giá: {variant.price}{" "}
+              VNĐ, SL: {variant.quantity}
             </li>
           ))}
         </ul>
@@ -73,16 +103,24 @@ const OrderDetailAdmin = () => {
   // Hàm xử lý chỉnh sửa thông tin
   const handleEditSubmit = async (values) => {
     try {
-      const response = await axios.put(`http://localhost:5555/api/order/${order.order_id}`, {
-        ...values,
-        user_id: order.user_id, // Giữ nguyên user_id
-      },
-      {
-        headers: { Authorization: `Bearer ${tokenAdmin}` },
-      });
+      const response = await axios.put(
+        `http://localhost:5555/api/order/${order.order_id}`,
+        {
+          ...values,
+          user_id: order.user_id, // Giữ nguyên user_id
+        },
+        {
+          headers: { Authorization: `Bearer ${tokenAdmin}` },
+        }
+      );
 
       if (response.status === 200) {
-        openNotificationWithIcon(api, "success", "Cập nhật đơn hàng thành công", "Cập nhật đơn hàng thành công!");
+        openNotificationWithIcon(
+          api,
+          "success",
+          "Cập nhật đơn hàng thành công",
+          "Cập nhật đơn hàng thành công!"
+        );
         setIsModalVisible(false);
         navigate("/admin/dashboard/orders");
       }
@@ -92,48 +130,27 @@ const OrderDetailAdmin = () => {
     }
   };
 
-  // Tạo một hàm để ánh xạ trạng thái đơn hàng thành tên và màu sắc phù hợp
-  const getStatusTag = (status) => {
-    const statusData = orderStatus.find((item) => item.englishName === status);
-    if (statusData) {
-      let color;
-      switch (statusData.englishName) {
-        case "Pending":
-          color = "orange";
-          break;
-        case "Confirmed":
-          color = "blue";
-          break;
-        case "Paid":
-          color = "green";
-          break;
-        case "Preparing":
-          color = "yellow";
-          break;
-        case "Transit":
-          color = "geekblue";
-          break;
-        case "Delivered":
-          color = "green";
-          break;
-        case "Received":
-          color = "purple";
-          break;
-        case "Completed":
-          color = "success";
-          break;
-        case "Canceled":
-          color = "red";
-          break;
-        default:
-          color = "default";
-          break;
+  useEffect(() => {
+    handleGetListUser();
+
+    return () => {};
+  }, []);
+
+  // get danh sách user
+  const handleGetListUser = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5555/api/users`);
+
+      if (response.status === 200) {
+        setListDataUser(response.data);
       }
-      return <Tag color={color}>{statusData.name}</Tag>;
+    } catch (error) {
+      console.error("Error occurred:", error);
+    } finally {
     }
-    return null;
   };
 
+  console.log(orderStatus, "111");
   return (
     <div>
       <h4 className="mb-3">Chi tiết Đơn hàng</h4>
@@ -141,28 +158,54 @@ const OrderDetailAdmin = () => {
       {/* Row 1: Thông tin người đặt và người nhận */}
       <Row gutter={16}>
         <Col span={8}>
-          <Card title="Thông tin người đặt" bodyStyle={{ padding: "10px" }} headStyle={{ padding: "0 16px", minHeight: 38 }}>
+          <Card
+            title="Thông tin người đặt"
+            bodyStyle={{ padding: "10px" }}
+            headStyle={{ padding: "0 16px", minHeight: 38 }}
+          >
             <Descriptions column={1} bordered>
-              <Descriptions.Item style={{ padding: "6px" }} label="ID người đặt">
+              <Descriptions.Item
+                style={{ padding: "6px" }}
+                label="ID người đặt"
+              >
                 {order.user_id}
+              </Descriptions.Item>
+              <Descriptions.Item
+                style={{ padding: "6px" }}
+                label="Tên người đặt"
+              >
+                {listDataUser.find((x) => x._id === order.user_id)?.name ?? ""}
               </Descriptions.Item>
             </Descriptions>
           </Card>
         </Col>
         <Col span={16}>
-          <Card title="Thông tin người nhận" bodyStyle={{ padding: "10px" }} headStyle={{ padding: "0 16px", minHeight: 38 }}>
+          <Card
+            title="Thông tin người nhận"
+            bodyStyle={{ padding: "10px" }}
+            headStyle={{ padding: "0 16px", minHeight: 38 }}
+          >
             <Descriptions column={1} bordered>
-              <Descriptions.Item style={{ padding: "6px" }} label="Tên người nhận">
+              <Descriptions.Item
+                style={{ padding: "6px" }}
+                label="Tên người nhận"
+              >
                 {order.receiver_name}
               </Descriptions.Item>
-              <Descriptions.Item style={{ padding: "6px" }} label="Số điện thoại">
+              <Descriptions.Item
+                style={{ padding: "6px" }}
+                label="Số điện thoại"
+              >
                 {order.receiver_phone}
               </Descriptions.Item>
               <Descriptions.Item style={{ padding: "6px" }} label="Địa chỉ">
                 {order.receiver_address}
               </Descriptions.Item>
             </Descriptions>
-            <div style={{ marginTop: "10px" }} className="d-flex justify-content-end">
+            <div
+              style={{ marginTop: "10px" }}
+              className="d-flex justify-content-end"
+            >
               <Button type="primary" onClick={showEditModal}>
                 Chỉnh sửa
               </Button>
@@ -174,16 +217,30 @@ const OrderDetailAdmin = () => {
       {/* Row 2: Thông tin khác */}
       <Row style={{ marginTop: "16px" }}>
         <Col span={24}>
-          <Card title="Thông tin đơn hàng" bodyStyle={{ padding: "10px" }} headStyle={{ padding: "0 16px", minHeight: 38 }}>
+          <Card
+            title="Thông tin đơn hàng"
+            bodyStyle={{ padding: "10px" }}
+            headStyle={{ padding: "0 16px", minHeight: 38 }}
+          >
             <Descriptions column={1} bordered>
               <Descriptions.Item style={{ padding: "6px" }} label="Tổng tiền">
                 {formatCurrency(order.total_price)}
+              </Descriptions.Item>
+              <Descriptions.Item style={{ padding: "6px" }} label="Giảm giá">
+                -{formatCurrency(order.discount)}
               </Descriptions.Item>
               <Descriptions.Item style={{ padding: "6px" }} label="Ngày tạo">
                 {new Date(order.created_at).toLocaleString()}
               </Descriptions.Item>
               <Descriptions.Item style={{ padding: "6px" }} label="Trạng thái">
-                <Tag color={statusColor}>{order.status.toUpperCase()}</Tag>
+                {/* <Tag color={statusColor}>{order.status.toUpperCase()}</Tag> */}
+                <Tag color={statusColor}>
+                  {orderStatus.find(
+                    (status) =>
+                      status.englishName.toLowerCase() ===
+                      order.status.toLowerCase()
+                  )?.name || "Trạng thái không xác định"}
+                </Tag>
               </Descriptions.Item>
             </Descriptions>
           </Card>
@@ -193,35 +250,106 @@ const OrderDetailAdmin = () => {
       {/* Row 3: Danh sách sản phẩm */}
       <Row gutter={16} style={{ marginTop: "16px" }}>
         <Col span={24}>
-          <Card title="Sản phẩm trong đơn hàng" bodyStyle={{ padding: "10px" }} headStyle={{ padding: "0 16px", minHeight: 38 }}>
-            <Table columns={productColumns} dataSource={order.items} pagination={false} rowKey="product_id" size="small" />
+          <Card
+            title="Sản phẩm trong đơn hàng"
+            bodyStyle={{ padding: "10px" }}
+            headStyle={{ padding: "0 16px", minHeight: 38 }}
+          >
+            <Table
+              columns={productColumns}
+              dataSource={order.items}
+              pagination={false}
+              rowKey="product_id"
+              size="small"
+            />
           </Card>
         </Col>
       </Row>
 
       {/* Modal chỉnh sửa thông tin */}
-      <Modal title="Chỉnh sửa thông tin" visible={isModalVisible} onCancel={handleCancel} footer={null}>
+      <Modal
+        title="Chỉnh sửa thông tin"
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        footer={null}
+      >
         <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
-          <Form.Item name="receiver_name" label="Tên người nhận" rules={[{ required: true, message: "Vui lòng nhập tên người nhận" }]}>
+          <Form.Item
+            name="receiver_name"
+            label="Tên người nhận"
+            rules={[
+              { required: true, message: "Vui lòng nhập tên người nhận" },
+            ]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="receiver_phone" label="Số điện thoại" rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}>
+          <Form.Item
+            name="receiver_phone"
+            label="Số điện thoại"
+            rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="receiver_address" label="Địa chỉ" rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}>
+          <Form.Item
+            name="receiver_address"
+            label="Địa chỉ"
+            rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="receiver_email" label="Email" rules={[{ required: true, message: "Vui lòng nhập Email" }]}>
+          <Form.Item
+            name="receiver_email"
+            label="Email"
+            rules={[{ required: true, message: "Vui lòng nhập Email" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="note" label="Địa chỉ" rules={[{ required: true, message: "Vui lòng nhập ghi chú" }]}>
+          <Form.Item
+            name="note"
+            label="Địa chỉ"
+            rules={[{ required: true, message: "Vui lòng nhập ghi chú" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="status" label="Trạng thái" rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}>
-            <Select value={selectedStatus} onChange={setSelectedStatus} placeholder="Chọn trạng thái" allowClear>
-              {orderStatus.filter(a => a.id !== 2).map((x) => (
-                <Select.Option value={x.englishName}>{x.name}</Select.Option>
-              ))}
+          <Form.Item
+            name="status"
+            label="Trạng thái"
+            rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}
+          >
+            <Select
+              value={selectedStatus}
+              onChange={setSelectedStatus}
+              placeholder="Chọn trạng thái"
+              allowClear
+            >
+              {orderStatus.map((status) => {
+                // Lấy id của trạng thái hiện tại
+                const currentStatus = orderStatus.find(
+                  (x) =>
+                    x.englishName.toLowerCase() === order.status.toLowerCase()
+                );
+                const currentId = currentStatus?.id || 0;
+
+                // Kiểm tra điều kiện disable
+                const isDisabled =
+                  (currentId === 1 && status.id !== 8) || // Nếu "Chưa xác nhận", chỉ enable "Hủy đơn hàng"
+                  (currentId === 8 && status.id !== 7) || // Nếu "Canceled", chỉ enable "Completed"
+                  (currentId === 7 && status.id !== 7) || // Nếu "Completed", chỉ enable chính nó
+                  (currentId !== 8 &&
+                    currentId !== 7 &&
+                    currentId !== 1 &&
+                    (status.id < currentId || status.id === 8)); // Disable các trạng thái trước đó hoặc "Canceled"
+
+                return (
+                  <Select.Option
+                    key={status.id}
+                    value={status.englishName}
+                    disabled={isDisabled}
+                  >
+                    {status.name}
+                  </Select.Option>
+                );
+              })}
             </Select>
           </Form.Item>
           <Form.Item>
