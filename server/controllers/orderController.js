@@ -203,8 +203,7 @@ const createZaloPayOrder = async (req, res) => {
     }
 
     // Tổng giá trị sau giảm giá
-    const finalPrice = cart.total_price - discount;
-
+    const finalPrice = cart.total_price - discount + 30000;
     // Tạo đơn hàng cho ZaloPay
     const order = {
       app_id: config.app_id,
