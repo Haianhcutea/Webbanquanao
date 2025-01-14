@@ -115,7 +115,7 @@ const placeOrder = async (req, res) => {
     }
 
     // Tính tổng giá trị sau giảm giá
-    const finalPrice = cart.total_price - discount;
+    const finalPrice = cart.total_price - discount + 30000;
 
     // Tạo đơn hàng từ giỏ hàng
     const newOrder = new Order({
