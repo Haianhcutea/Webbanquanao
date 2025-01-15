@@ -28,7 +28,9 @@ const orderSchema = new mongoose.Schema({
   receiver_address: { type: String, required: true }, // Địa chỉ nhận hàng
   note: { type: String }, // Ghi chú đơn hàng (nếu có)
   status: { type: String, default: 'Pending' }, // Trạng thái đơn hàng (Pending, Delivered, etc.)
-  payment_method: {type: String, default: 'COD'},
+  payment_method: { type: String, default: 'COD' },
+  cancel_reason: { type: String, default: null }, // Lý do hủy đơn hàng
+  canceled_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // Người hủy đơn hàng
   created_at: { type: Date, default: Date.now }, // Ngày đặt hàng
   updated_at: { type: Date, default: Date.now }
 });

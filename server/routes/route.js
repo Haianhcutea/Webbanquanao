@@ -1,10 +1,18 @@
 const express = require('express');
+
 const { registerUser, loginUser, getUserById, registerAdmin, getUsers, updateUser, deleteUser  } = require('../controllers/authController');
+=======
+const { registerUser, loginUser, getUserById } = require('../controllers/authController');
+
 const { addCategory, getCategories, updateCategory, softDeleteCategory } = require('../controllers/categoryController');
 const { addProduct, getProductById, getProductsByCategory,  getAllProducts, updateProduct, softDeleteProduct } = require('../controllers/productController');
 const { addToCart, getCartDetails, updateCart, deleteVariantFromCart } = require('../controllers/cartController');
 const { placeOrder, getUserOrders, getAllOrders, updateOrder, createZaloPayOrder, handleZaloPayCallback, checkOrderStatus } = require('../controllers/orderController.js');
+
 const { createCoupon, getCoupons, getCouponsUser, getCouponById, updateCoupon, deleteCoupon, checkCouponStatus, } = require('../controllers/couponController.js');
+=======
+const { createCoupon, getCoupons, getCouponById, updateCoupon, deleteCoupon, checkCouponStatus, } = require('../controllers/couponController.js');
+
 const { getOrderStatusesAPI } = require('../controllers/statusOrder.js');
 const authMiddleware = require('../middlewares/authMiddleware');
 
@@ -18,6 +26,7 @@ router.post('/auth/register', registerUser);
 
 // Route đăng nhập người dùng
 router.post('/auth/login', loginUser);
+
 // Lấy thông tin người dùng theo id
 router.get('/users/:id', getUserById);
 
@@ -29,6 +38,12 @@ router.get('/users', getUsers);
 router.put('/users/:id', updateUser);
 // Xóa mềm người dùng 
 router.delete('/users/:id', deleteUser);
+=======
+
+// Lấy thông tin người dùng theo id
+router.get('/users/:id', getUserById);
+
+
 // QUẢN LÝ DANH MỤC
 // Route thêm danh mục mới
 router.post('/categories/add', addCategory);
@@ -115,11 +130,16 @@ router.get('/all-status', getOrderStatusesAPI);
 // Tạo mã giảm giá
 router.post('/coupons/create', createCoupon);
 
+
 // Lấy danh sách mã giảm giá cho admin
 router.get('/coupons/', getCoupons);
 
 // Lấy danh sách mã giảm giá cho người dùng
 router.get('/coupons-user/', getCouponsUser);
+
+=======
+// Lấy danh sách mã giảm giá
+router.get('/coupons/', getCoupons);
 
 // Lấy mã giảm giá cụ thể
 router.get('/coupons/:id', getCouponById);
@@ -129,6 +149,12 @@ router.put('/coupons/:id', updateCoupon);
 
 // Xóa mã giảm giá
 router.delete('/coupons/:id', deleteCoupon);
+
+
+
+// Kiểm tra tình trạng mã giảm giá
+router.post('/coupons/check-status', checkCouponStatus);
+
 
 // Kiểm tra tình trạng mã giảm giá
 router.post('/coupons/check-status', checkCouponStatus);

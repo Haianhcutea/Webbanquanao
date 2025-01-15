@@ -26,10 +26,6 @@ import support247 from "@/assets/img/icons/support247.webp";
 
 //
 
-import slider_1 from "@/assets/img/blog/slider/1-370x235.webp";
-import slider_2 from "@/assets/img/blog/slider/2-370x235.webp";
-import slider_3 from "@/assets/img/blog/slider/3-370x235.webp";
-
 import OurProducts from "./OurProducts";
 import { useSelector } from "react-redux";
 
