@@ -6,6 +6,7 @@ import { NotificationContext, openNotificationWithIcon } from "../../App";
 import axios from "axios";
 
 const Register = () => {
+
   const api = useContext(NotificationContext);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -24,6 +25,7 @@ const Register = () => {
       openNotificationWithIcon(api, "error", "Register Failed", "Please check your credentials and try again.");
     }
   };
+
 
   return (
     <div className="col-sm-12 col-md-12 col-lg-12 col-xs-12">
