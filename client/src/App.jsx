@@ -1,3 +1,5 @@
+/** @format */
+
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import AuthLayouts from "./components/layouts/AuthLayouts";
 import Login from "./components/auth/login";
@@ -16,13 +18,15 @@ import CategoriesAdmin from "./components/admin/components/category";
 import ProductsAdmin from "./components/admin/components/product";
 import { setUserAdmin } from "./store/admin/auth";
 import { fetchCategories } from "./store/categories";
-import { fetchAllOrderByUserId, fetchCartDetailByUserID } from "./store/cart";
+import { fetchAllOrderByUserId, fetchAllOrderStatus, fetchCartDetailByUserID } from "./store/cart";
 import Order from "./components/order";
 import Checkout from "./components/checkout";
 import MyAccount from "./components/account";
 import OrdersAdmin from "./components/admin/components/orders";
 import CheckoutResult from "./components/checkout/CheckoutResult";
 import OrderDetailAdmin from "./components/admin/components/orders/OrderDetail";
+import CouponsAdmin from "./components/admin/components/coupons";
+import { fetchCoupons } from "./store/admin/adminGetList";
 
 export const NotificationContext = createContext(null);
 
@@ -62,10 +66,13 @@ function App() {
     if (token && userInfor?.name) {
       dispatch(setUser(userInfor));
       // lưu danh sách categories khi có user
-      dispatch(fetchCategories());
       dispatch(fetchCartDetailByUserID({ token, userId: userInfor._id }));
       dispatch(fetchAllOrderByUserId({ token, userId: userInfor._id }));
+      dispatch(fetchCoupons({ token }));
+      dispatch(fetchAllOrderStatus({ token }));
     }
+
+    dispatch(fetchCategories());
 
     // admin
     const tokenAdmin = localStorage.getItem("tokenAdmin");
@@ -117,6 +124,7 @@ function App() {
               <Route path="products" element={<ProductsAdmin />} />
               <Route path="orders" element={<OrdersAdmin />} />
               <Route path="orders/:id" element={<OrderDetailAdmin />} />
+              <Route path="coupons" element={<CouponsAdmin />} />
             </Route>
           </Route>
           <Route path="/admin/login" element={<LoginAdmin />} />

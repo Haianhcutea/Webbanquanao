@@ -20,13 +20,17 @@ const orderSchema = new mongoose.Schema({
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Liên kết tới người dùng
   items: [orderItemSchema], // Các sản phẩm và biến thể trong đơn hàng
   total_price: { type: Number, required: true }, // Tổng tiền của đơn hàng
+  discount: { type: Number, default: 0 }, // Giá trị giảm giá
+  coupon_code: { type: String, default: null }, // Mã giảm giá
   receiver_name: { type: String, required: true }, // Tên người nhận
   receiver_phone: { type: String, required: true }, // Số điện thoại người nhận
   receiver_email: { type: String, required: true }, // Email người nhận
   receiver_address: { type: String, required: true }, // Địa chỉ nhận hàng
   note: { type: String }, // Ghi chú đơn hàng (nếu có)
   status: { type: String, default: 'Pending' }, // Trạng thái đơn hàng (Pending, Delivered, etc.)
-  payment_method: {type: String, default: 'COD'},
+  payment_method: { type: String, default: 'COD' },
+  cancel_reason: { type: String, default: null }, // Lý do hủy đơn hàng
+  canceled_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // Người hủy đơn hàng
   created_at: { type: Date, default: Date.now }, // Ngày đặt hàng
   updated_at: { type: Date, default: Date.now }
 });

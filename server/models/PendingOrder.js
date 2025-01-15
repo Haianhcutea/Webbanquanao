@@ -21,6 +21,8 @@ const pendingOrderSchema = new mongoose.Schema({
   transID: { type: String, required: true, unique: true }, // ID giao dịch duy nhất
   items: [pendingOrderItemSchema], // Các sản phẩm và biến thể trong đơn hàng
   total_price: { type: Number, required: true }, // Tổng tiền của đơn hàng
+  discount: { type: Number, default: 0 }, // Giá trị giảm giá
+  coupon_code: { type: String, default: null }, // Mã giảm giá
   receiver_name: { type: String, required: true }, // Tên người nhận
   receiver_phone: { type: String, required: true }, // Số điện thoại người nhận
   receiver_email: { type: String, required: true }, // Email người nhận

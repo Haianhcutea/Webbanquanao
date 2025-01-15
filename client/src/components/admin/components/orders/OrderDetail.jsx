@@ -1,3 +1,5 @@
+/** @format */
+
 import {
   Card,
   Col,
@@ -11,7 +13,7 @@ import {
   Input,
   Select,
 } from "antd";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -19,9 +21,15 @@ import {
   NotificationContext,
   openNotificationWithIcon,
 } from "../../../../App";
+import { useSelector } from "react-redux";
 
 const OrderDetailAdmin = () => {
   const api = useContext(NotificationContext);
+  const orderStatus = useSelector((state) => state.cart.orderStatus);
+
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [listDataUser, setListDataUser] = useState([]);
+  const tokenAdmin = localStorage.getItem("tokenAdmin");
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -100,6 +108,9 @@ const OrderDetailAdmin = () => {
         {
           ...values,
           user_id: order.user_id, // Giữ nguyên user_id
+        },
+        {
+          headers: { Authorization: `Bearer ${tokenAdmin}` },
         }
       );
 
@@ -119,6 +130,27 @@ const OrderDetailAdmin = () => {
     }
   };
 
+  useEffect(() => {
+    handleGetListUser();
+
+    return () => {};
+  }, []);
+
+  // get danh sách user
+  const handleGetListUser = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5555/api/users`);
+
+      if (response.status === 200) {
+        setListDataUser(response.data);
+      }
+    } catch (error) {
+      console.error("Error occurred:", error);
+    } finally {
+    }
+  };
+
+  console.log(orderStatus, "111");
   return (
     <div>
       <h4 className="mb-3">Chi tiết Đơn hàng</h4>
@@ -137,6 +169,12 @@ const OrderDetailAdmin = () => {
                 label="ID người đặt"
               >
                 {order.user_id}
+              </Descriptions.Item>
+              <Descriptions.Item
+                style={{ padding: "6px" }}
+                label="Tên người đặt"
+              >
+                {listDataUser.find((x) => x._id === order.user_id)?.name ?? ""}
               </Descriptions.Item>
             </Descriptions>
           </Card>
@@ -188,11 +226,21 @@ const OrderDetailAdmin = () => {
               <Descriptions.Item style={{ padding: "6px" }} label="Tổng tiền">
                 {formatCurrency(order.total_price)}
               </Descriptions.Item>
+              <Descriptions.Item style={{ padding: "6px" }} label="Giảm giá">
+                -{formatCurrency(order.discount)}
+              </Descriptions.Item>
               <Descriptions.Item style={{ padding: "6px" }} label="Ngày tạo">
                 {new Date(order.created_at).toLocaleString()}
               </Descriptions.Item>
               <Descriptions.Item style={{ padding: "6px" }} label="Trạng thái">
-                <Tag color={statusColor}>{order.status.toUpperCase()}</Tag>
+                {/* <Tag color={statusColor}>{order.status.toUpperCase()}</Tag> */}
+                <Tag color={statusColor}>
+                  {orderStatus.find(
+                    (status) =>
+                      status.englishName.toLowerCase() ===
+                      order.status.toLowerCase()
+                  )?.name || "Trạng thái không xác định"}
+                </Tag>
               </Descriptions.Item>
             </Descriptions>
           </Card>
@@ -217,29 +265,91 @@ const OrderDetailAdmin = () => {
           </Card>
         </Col>
       </Row>
+
       {/* Modal chỉnh sửa thông tin */}
-      <Modal title="Chỉnh sửa thông tin" visible={isModalVisible} onCancel={handleCancel} footer={null}>
+      <Modal
+        title="Chỉnh sửa thông tin"
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        footer={null}
+      >
         <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
-          <Form.Item name="receiver_name" label="Tên người nhận" rules={[{ required: true, message: "Vui lòng nhập tên người nhận" }]}>
+          <Form.Item
+            name="receiver_name"
+            label="Tên người nhận"
+            rules={[
+              { required: true, message: "Vui lòng nhập tên người nhận" },
+            ]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="receiver_phone" label="Số điện thoại" rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}>
+          <Form.Item
+            name="receiver_phone"
+            label="Số điện thoại"
+            rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="receiver_address" label="Địa chỉ" rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}>
+          <Form.Item
+            name="receiver_address"
+            label="Địa chỉ"
+            rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="receiver_email" label="Email" rules={[{ required: true, message: "Vui lòng nhập Email" }]}>
+          <Form.Item
+            name="receiver_email"
+            label="Email"
+            rules={[{ required: true, message: "Vui lòng nhập Email" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="note" label="Địa chỉ" rules={[{ required: true, message: "Vui lòng nhập ghi chú" }]}>
+          <Form.Item
+            name="note"
+            label="Địa chỉ"
+            rules={[{ required: true, message: "Vui lòng nhập ghi chú" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="status" label="Trạng thái" rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}>
-            <Select>
-                <Select.Option value="completed">Thành công</Select.Option>
-                <Select.Option value="pending">Chờ duyệt</Select.Option>
-                <Select.Option value="cancel">Huỷ</Select.Option>
+          <Form.Item
+            name="status"
+            label="Trạng thái"
+            rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}
+          >
+            <Select
+              value={selectedStatus}
+              onChange={setSelectedStatus}
+              placeholder="Chọn trạng thái"
+              allowClear
+            >
+              {orderStatus.map((status) => {
+                // Lấy id của trạng thái hiện tại
+                const currentStatus = orderStatus.find(
+                  (x) =>
+                    x.englishName.toLowerCase() === order.status.toLowerCase()
+                );
+                const currentId = currentStatus?.id || 0;
+
+                // Kiểm tra điều kiện disable
+                const isDisabled =
+                  (currentId === 1 && status.id !== 8) || // Nếu "Chưa xác nhận", chỉ enable "Hủy đơn hàng"
+                  (currentId === 8 && status.id !== 7) || // Nếu "Canceled", chỉ enable "Completed"
+                  (currentId === 7 && status.id !== 7) || // Nếu "Completed", chỉ enable chính nó
+                  (currentId !== 8 &&
+                    currentId !== 7 &&
+                    currentId !== 1 &&
+                    (status.id < currentId || status.id === 8)); // Disable các trạng thái trước đó hoặc "Canceled"
+
+                return (
+                  <Select.Option
+                    key={status.id}
+                    value={status.englishName}
+                    disabled={isDisabled}
+                  >
+                    {status.name}
+                  </Select.Option>
+                );
+              })}
             </Select>
           </Form.Item>
           <Form.Item>
