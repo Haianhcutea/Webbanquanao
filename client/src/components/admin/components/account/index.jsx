@@ -7,7 +7,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setListCategory } from "../../../../store/admin/categories";
 
-const CategoriesAdmin = () => {
+const AccountAdmin = () => {
   const api = useContext(NotificationContext);
   const dispatch = useDispatch();
 
@@ -32,9 +32,15 @@ const CategoriesAdmin = () => {
       ellipsis: true,
     },
     {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      ellipsis: true,
+    },
+    {
       title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "active",
+      key: "active",
       ellipsis: true,
       filters: [
         {
@@ -59,33 +65,28 @@ const CategoriesAdmin = () => {
         return <Tag color={color}>{value.toUpperCase()}</Tag>;
       },
     },
-    {
-      title: "Mô tả",
-      dataIndex: "description",
-      key: "description",
-      ellipsis: true,
-    },
+    
     {
       title: "Chức năng",
       key: "actions",
       render: (text, record) => (
         <span style={{ display: "flex", gap: 16, justifyContent: "center" }}>
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => {
-              showDrawer();
-              setAction("UPDATE");
-              formCurd.setFieldsValue(record);
-            }}
-          />
-         {/* <Popconfirm
-            title="Delete the product"
-            description="Are you sure to delete this product?"
+           <Button
+        icon={<EditOutlined />}
+        onClick={async () => {
+          await handleGetDetail(record?._id); // Gọi hàm lấy chi tiết
+          showDrawer();
+          setAction("UPDATE");
+        }}
+      />
+          <Popconfirm
+            title="Xoá tài khoản admin"
+            description="Bạn có chắc muốn xoá tài khoản admin này?"
             onConfirm={() => handleDelete(record?._id)}
             okText="Yes"
             cancelText="No">
             <Button icon={<DeleteOutlined />} />
-          </Popconfirm>*/}
+          </Popconfirm>
         </span>
       ),
     },
@@ -108,10 +109,10 @@ const CategoriesAdmin = () => {
       formCurd
         .validateFields()
         .then(async (values) => {
-          const response = await axios.post(`http://localhost:5555/api/categories/add`, values);
+          const response = await axios.post(`http://localhost:5555/api/auth/register-admin`, values);
 
           if (response.status === 201) {
-            openNotificationWithIcon(api, "success", "Add product Successful", "You have successfully added product!");
+            openNotificationWithIcon(api, "success", "Thành công", "Thêm tài khoản admin thành công!");
             handleGetList();
             onClose();
             formCurd.resetFields();
@@ -119,17 +120,17 @@ const CategoriesAdmin = () => {
         })
         .catch((err) => {
           console.error("Error occurred:", err);
-          openNotificationWithIcon(api, "error", "Add product Failed", "Please check your values.");
+          openNotificationWithIcon(api, "error", "Thất bại", "Vui lòng kiểm tra lại.");
         })
         .finally(() => {});
     } else {
       formCurd
         .validateFields()
         .then(async (values) => {
-          const response = await axios.put(`http://localhost:5555/api/categories/update/${values?._id}`, values);
+          const response = await axios.put(`http://localhost:5555/api/users/${values?._id}`, values);
 
           if (response.status === 200) {
-            openNotificationWithIcon(api, "success", "Update product Successful", "You have successfully updated product!");
+            openNotificationWithIcon(api, "success", "Thành công", "Sửa tài khoản admin thành công!");
             handleGetList();
             onClose();
             formCurd.resetFields();
@@ -137,7 +138,7 @@ const CategoriesAdmin = () => {
         })
         .catch((err) => {
           console.error("Error occurred:", err);
-          openNotificationWithIcon(api, "error", "Update product Failed", "Please check your values.");
+          openNotificationWithIcon(api, "error", "Thất bại", "Vui lòng kiểm tra lại.");
         })
         .finally(() => {});
     }
@@ -146,7 +147,7 @@ const CategoriesAdmin = () => {
   // lấy toàn bộ ds
   const handleGetList = async () => {
     try {
-      const response = await axios.get(`http://localhost:5555/api/categories`);
+      const response = await axios.get(`http://localhost:5555/api/users`);
 
       if (response.status === 200) {
         setData(response.data);
@@ -159,17 +160,36 @@ const CategoriesAdmin = () => {
     }
   };
 
+  const handleGetDetail = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:5555/api/users/${id}`);
+      if (response.status === 200) {
+        console.log(response.data, "response.data 111");
+        
+        formCurd.setFieldsValue(response.data); // Điền dữ liệu vào form
+      }
+    } catch (error) {
+      console.error("Error occurred:", error);
+      openNotificationWithIcon(api, "error", "Thất bại", "Không thể tải dữ liệu chi tiết.");
+    }
+  };
+  
+
   // hàm xoá
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:5555/api/categories/delete/${id}`);
+      const response = await axios.delete(`http://localhost:5555/api/users/${id}`);
+      console.log(response, "!111");
+      
       if (response.status === 200) {
-        openNotificationWithIcon(api, "success", "Delete product Successful", "You have successfully deleted product!");
+        openNotificationWithIcon(api, "success", "Thành công", "Xoá thành công tài khoản admin!");
+        handleGetList();
+      } else {
+        openNotificationWithIcon(api, "error", "Thất bại", "Không được xoá tài khoản này");
         handleGetList();
       }
     } catch (error) {
-      console.error("Error occurred:", err);
-      openNotificationWithIcon(api, "error", "Delete product Failed", "Please check your values.");
+      openNotificationWithIcon(api, "error", "Thất bại", "Không được xoá tài khoản này.");
     } finally {
     }
   };
@@ -201,7 +221,7 @@ const CategoriesAdmin = () => {
       />
 
       <Drawer
-        title={action === "ADD" ? "Thêm mới danh mục" : "Cập nhật danh mục"}
+        title={action === "ADD" ? "Thêm mới tài khoản admin" : "Cập nhật tài khoản admin"}
         width={720}
         onClose={onClose}
         open={open}
@@ -238,34 +258,30 @@ const CategoriesAdmin = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                name="status"
-                label="Trạng thái"
+                name="email"
+                label="Email"
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng nhập trạng thái",
+                    message: "Vui lòng nhập Email",
                   },
                 ]}>
-                <Select placeholder="Vui lòng nhập trạng thái">
-                  <Select.Option value="active">Hoạt động</Select.Option>
-                  <Select.Option value="inactive">Không hoạt động</Select.Option>
-                  <Select.Option value="closed">Đóng</Select.Option>
-                </Select>
+                               <Input placeholder="Vui lòng nhập Email" />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={16}>
             <Col span={24}>
               <Form.Item
-                name="description"
-                label="Mô tả"
+                name="password"
+                label="Mật khẩu"
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng nhập mô tả",
+                    message: "Vui lòng nhập mật khẩu",
                   },
                 ]}>
-                <Input.TextArea rows={4} placeholder="Vui lòng nhập mô tả" />
+                <Input.Password rows={4} placeholder="Vui lòng nhập mật khẩu" />
               </Form.Item>
             </Col>
           </Row>
@@ -275,4 +291,4 @@ const CategoriesAdmin = () => {
   );
 };
 
-export default CategoriesAdmin;
+export default AccountAdmin;

@@ -89,14 +89,14 @@ const ProductsAdmin = () => {
               });
             }}
           />
-          <Popconfirm
-            title="Delete the product"
-            description="Are you sure to delete this product?"
+          {/* <Popconfirm
+            title="Xoá sản phẩm"
+            description="Bạn có chắc chắn muốn xoá sản phẩm?"
             onConfirm={() => handleDelete(record?._id)}
             okText="Yes"
             cancelText="No">
             <Button icon={<DeleteOutlined />} />
-          </Popconfirm>
+          </Popconfirm> */}
         </span>
       ),
     },

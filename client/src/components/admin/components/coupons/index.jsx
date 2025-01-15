@@ -84,9 +84,9 @@ const CouponsAdmin = () => {
               handleGetCouponDetails(record._id); // Gọi API lấy chi tiết khi nhấn vào sửa
             }}
           />
-          <Popconfirm title="Delete the product" description="Are you sure to delete this product?" onConfirm={() => handleDelete(record?._id)} okText="Yes" cancelText="No">
+                  {/* <Popconfirm title="Xoá mã giảm giá" description="Bạn có chắc chắn muốn xoá mã giảm giá?" onConfirm={() => handleDelete(record?._id)} okText="Yes" cancelText="No">
             <Button icon={<DeleteOutlined />} />
-          </Popconfirm>
+          </Popconfirm> */}
         </span>
       ),
     },
