@@ -156,6 +156,20 @@ router.delete('/coupons/:id', deleteCoupon);
 router.post('/coupons/check-status', checkCouponStatus);
 
 
+// MÃ GIẢM GIÁ
+
+// Cập nhật mã giảm giá
+router.put('/coupons/:id', updateCoupon);
+
+// Xóa mã giảm giá
+router.delete('/coupons/:id', deleteCoupon);
+
+// Kiểm tra tình trạng mã giảm giá
+router.post('/coupons/check-status', checkCouponStatus);
+
+
+module.exports = router;
+=======
 // Kiểm tra tình trạng mã giảm giá
 router.post('/coupons/check-status', checkCouponStatus);
 
