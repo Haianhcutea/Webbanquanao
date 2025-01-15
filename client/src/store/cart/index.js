@@ -19,7 +19,10 @@ export const fetchCartDetailByUserID = createAsyncThunk("cart/fetchCartDetailByU
 
 // Gọi API lấy danh sách order
 export const fetchAllOrderByUserId = createAsyncThunk("cart/orders", async ({ token, userId }, { rejectWithValue }) => {
+
   console.log("1111");
+
+=======
 
   try {
     const response = await axios.get(`http://localhost:5555/api/orders`, {
@@ -33,11 +36,31 @@ export const fetchAllOrderByUserId = createAsyncThunk("cart/orders", async ({ to
   }
 });
 
+
+// Gọi API lấy danh sách trạng thaí đơn hàng
+export const fetchAllOrderStatus = createAsyncThunk("cart/fetchAllOrderStatus", async ({ token, userId }, { rejectWithValue }) => {
+  try {
+    const response = await axios.get(`http://localhost:5555/api/all-status`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Send token for authentication
+      },
+    });
+    return response.data; // Return the data from the API
+  } catch (error) {
+    return rejectWithValue(error.response.data); // Handle error
+  }
+});
+
+
 const initialState = {
   cartData: [],
   total_price: 0,
   orderData: [],
   cartPayment: null,
+
+=======
+  orderStatus: [],
+
 };
 const cartProductSlice = createSlice({
   name: "cart",
@@ -58,11 +81,25 @@ const cartProductSlice = createSlice({
       state.cartData = action.payload.cart;
       state.total_price = action.payload.total_price;
     });
+
     
+=======
+    //
+
     builder.addCase(fetchAllOrderByUserId.fulfilled, (state, action) => {
       state.orderData = action.payload.orders;
     });
+    //
+    builder.addCase(fetchAllOrderStatus.fulfilled, (state, action) => {
+      state.orderStatus = action.payload;
+    });
   },
 });
+
 export const { clearCartStore, addCartPayment } = cartProductSlice.actions;
 export default cartProductSlice.reducer;
+=======
+
+export const { clearCartStore, addCartPayment } = cartProductSlice.actions;
+export default cartProductSlice.reducer;
+

@@ -5,6 +5,7 @@ import axios from "axios";
 
 const OurProducts = () => {
   const categories = useSelector((state) => state.category.listCategory);
+
   const sliderSettings = {
     slidesToShow: 4,
     slidesToScroll: 1,
@@ -35,16 +36,19 @@ const OurProducts = () => {
 
   const [activeTab, setActiveTab] = useState(null); // Start with null
   const [productByCategoryID, setProductByCategoryID] = useState([]);
+
   // Set the initial activeTab when categories are available
   useEffect(() => {
     if (categories.length > 0) {
       setActiveTab(categories[0]._id); // Set to the first category ID
     }
   }, [categories]);
+
   // Handle tab click
   const handleTabClick = (id) => {
     setActiveTab(id);
   };
+
   useEffect(() => {
     if (activeTab) {
       getProductsByCategory(activeTab);
@@ -63,6 +67,7 @@ const OurProducts = () => {
       console.error("Error fetching products:", error);
     }
   };
+
   return (
     <div className="tab-slider-wrapper">
       {/* Tab navigation */}
@@ -82,6 +87,7 @@ const OurProducts = () => {
           ))}
         </div>
       </div>
+
       {/* Tab content */}
       <div className="tab-content">
         {categories.map((category) => (
@@ -98,7 +104,7 @@ const OurProducts = () => {
                   <div className="col" key={product._id}>
                     <div className="single-grid-product">
                       <div className="single-grid-product__image">
-                        <a href="single-product.html">
+                        <a href="javascript:void(0)">
                           <img width={600} height={800} src={`http://localhost:5555${product?.image[0]?.img_url}`} className="img-fluid" alt="" />
                           <img width={600} height={800} src={`http://localhost:5555${product?.image[1]?.img_url}`} className="img-fluid" alt="" />
                         </a>
@@ -114,7 +120,7 @@ const OurProducts = () => {
                       <div className="single-grid-product__content">
                         <div className="single-grid-product__category-rating">
                           <span className="category">
-                            <a href="shop-left-sidebar.html">{category.name}</a>
+                            <a href="javascript:void(0)">{category.name}</a>
                           </span>
                           <span className="rating">
                             {Array.from({ length: product.rating }, (_, i) => (
@@ -126,7 +132,7 @@ const OurProducts = () => {
                           </span>
                         </div>
                         <h3 className="single-grid-product__title">
-                          <a href="single-product.html">{product.name}</a>
+                          <a href="javascript:void(0)">{product.name}</a>
                         </h3>
                         <p className="single-grid-product__price">
                           <span className="main-price">${product.variants[0]?.price}</span>

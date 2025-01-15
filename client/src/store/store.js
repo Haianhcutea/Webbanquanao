@@ -1,19 +1,22 @@
 import { configureStore } from "@reduxjs/toolkit";
-<<<<<<< HEAD
 import authReducer from "./auth";
 import categoryReducer from "./categories";
+import cartReducer from "./cart";
+
+import authAdminReducer from "./admin/auth";
+import categoryAdminReducer from "./admin/categories";
+import adminGetListReducer from "./admin/adminGetList";
 
 const store = configureStore({
     reducer: {
+        // store trong client
         auth: authReducer,
-        category: categoryReducer
-=======
-import authReducer from "./auth-slice";
-
-const store = configureStore({
-    reducer: {
-        auth: authReducer
->>>>>>> ac43ae1ad6d30ea57c35b97186508f2912b2297d
+        category: categoryReducer,
+        cart: cartReducer,
+        // store trong admin
+        authAdmin: authAdminReducer,
+        categoryAdmin: categoryAdminReducer,
+        adminGetList: adminGetListReducer,
     }
 })
 
