@@ -1,41 +1,24 @@
-import React, { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Slider from "react-slick";
 import Breadcumb from "../layouts/breadcumb";
 
 //
-import big1 from "@/assets/img/products/big1-1.webp";
-import big2 from "@/assets/img/products/big1-2.webp";
-import big3 from "@/assets/img/products/big1-3.webp";
-import big4 from "@/assets/img/products/big1-4.webp";
-import big5 from "@/assets/img/products/big1-5.webp";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
+import Product from ".";
+import OurProducts from "../home/OurProducts";
+import { fetchCartDetailByUserID } from "../../store/cart";
+import { useDispatch } from "react-redux";
+import { NotificationContext, openNotificationWithIcon } from "../../App";
+import { notification } from "antd";
 
 const ProductDetail = () => {
-  const settings = {
-    slidesToShow: 4,
-    slidesToScroll: 1,
-    arrows: true,
-    autoplay: false,
-    speed: 1000,
-    infinite: false,
-    prevArrow: (
-      <button className="slick-prev">
-        <i className="ion-chevron-left" />
-      </button>
-    ),
-    nextArrow: (
-      <button className="slick-next">
-        <i className="ion-chevron-right" />
-      </button>
-    ),
-    responsive: [
-      { breakpoint: 1501, settings: { slidesToShow: 4 } },
-      { breakpoint: 1199, settings: { slidesToShow: 4, arrows: false } },
-      { breakpoint: 991, settings: { slidesToShow: 3, arrows: false } },
-      { breakpoint: 767, settings: { slidesToShow: 2, arrows: false } },
-      { breakpoint: 575, settings: { slidesToShow: 2, arrows: false } },
-      { breakpoint: 479, settings: { slidesToShow: 1, arrows: false } },
-    ],
-  };
+  const api = useContext(NotificationContext);
+
+  const location = useLocation();
+  const userInfor = localStorage.getItem("user");
+  const token = localStorage.getItem("token"); // Lấy token từ localStorage
+  const dispatch = useDispatch();
 
   const [nav1, setNav1] = useState(null);
   const [nav2, setNav2] = useState(null);
@@ -53,7 +36,7 @@ const ProductDetail = () => {
 
   // Cấu hình cho slider nhỏ
   const smallImageSettings = {
-    slidesToShow: 4,
+    slidesToShow: 3,
     slidesToScroll: 1,
     arrows: true,
     autoplay: false,
@@ -65,12 +48,13 @@ const ProductDetail = () => {
     prevArrow: <button className="slick-prev fa fa-angle-left"></button>,
     nextArrow: <button className="slick-next fa fa-angle-right"></button>,
     responsive: [
-      { breakpoint: 1501, settings: { slidesToShow: 3, arrows: false } },
-      { breakpoint: 1199, settings: { slidesToShow: 3, arrows: false } },
-      { breakpoint: 991, settings: { slidesToShow: 5, arrows: false } },
-      { breakpoint: 767, settings: { slidesToShow: 3, arrows: false } },
-      { breakpoint: 575, settings: { slidesToShow: 3, arrows: false } },
-      { breakpoint: 479, settings: { slidesToShow: 2, arrows: false } },
+      { breakpoint: 1905, settings: { slidesToShow: 3 } }, // Updated to your screen width
+      { breakpoint: 1705, settings: { slidesToShow: 3 } }, // Updated to your screen width
+      { breakpoint: 1501, settings: { slidesToShow: 3 } },
+      { breakpoint: 1199, settings: { slidesToShow: 2 } },
+      { breakpoint: 767, settings: { slidesToShow: 2 } },
+      { breakpoint: 575, settings: { slidesToShow: 1 } },
+      { breakpoint: 479, settings: { slidesToShow: 1 } },
     ],
   };
 
@@ -81,6 +65,114 @@ const ProductDetail = () => {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
+
+  // lấy dữ liệu chi tiết sản phẩm
+  const [data, setData] = useState([]);
+
+  // hàm chạy lần đầu lấy data
+  useEffect(() => {
+    handleGetDetailProduct();
+  }, []);
+
+  // lấy toàn bộ ds
+  const handleGetDetailProduct = async () => {
+    try {
+      const id = location?.pathname.split("/")[2];
+      const response = await axios.get(`http://localhost:5555/api/product/${id}`);
+
+      if (response.status === 200) {
+        setData(response.data);
+        // lưu list category vào store
+        // dispatch(setListCategory(response.data));
+      }
+    } catch (error) {
+      console.error("Error occurred:", error);
+    } finally {
+    }
+  };
+
+  // State lưu trữ size, color được chọn
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedVariant, setSelectedVariant] = useState(null);
+
+  const [quantity, setQuantity] = useState(null);
+
+  // Khi component load lần đầu, đặt mặc định size và color từ biến thể đầu tiên
+  useEffect(() => {
+    if (data?.variants?.length > 0) {
+      setSelectedSize(data.variants[0].size);
+      setSelectedColor(data.variants[0].color);
+      setQuantity(data.variants[0].stock);
+    }
+  }, [data]);
+
+  // Hàm để tìm biến thể dựa trên size và color
+  useEffect(() => {
+    if (selectedSize && selectedColor) {
+      const variant = data?.variants?.find((v) => v.size === selectedSize && v.color === selectedColor);
+      setSelectedVariant(variant);
+    }
+  }, [selectedSize, selectedColor, data]);
+
+  // hàm gọi khi thay đổi size
+  const handleChangeSize = (size) => {
+    const selectedSize = size.target.value;
+    setSelectedSize(selectedSize);
+    setQuantity(null);
+
+    // Tìm kiếm biến thể theo đầu tiên theo size
+    const firstVariantForSize = data?.variants?.find((v) => v.size === selectedSize);
+
+    if (firstVariantForSize) {
+      setSelectedColor(firstVariantForSize.color);
+      setQuantity(firstVariantForSize.stock);
+    }
+  };
+
+  // hàm khi thêm sản phẩm vào giỏ hàng
+  const handleAddCart = async () => {
+    try {
+
+      // Thay thế Fetch API bằng Axios
+      const response = await axios.post(
+        "http://localhost:5555/api/add-to-cart",
+        {
+          product_id: data._id, // Thay thế bằng ID sản phẩm của bạn
+          variant: [
+            {
+              color: selectedVariant.color,
+              size: selectedVariant.size,
+              sku: selectedVariant.sku,
+              stock: selectedVariant.stock,
+              price: selectedVariant.price,
+              _id: selectedVariant._id,
+              quantity: quantity, // Gửi giá trị quantity ở đây
+            },
+          ], // Dữ liệu biến thể từ selectedVariant
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Gửi token để xác thực
+          },
+        }
+      );
+
+      if (response && response.status === 200) {
+        dispatch(fetchCartDetailByUserID({ token, userId: userInfor._id }));
+        openNotificationWithIcon(api, "success", "Thêm vào giỏ hàng thành công", "Thêm vào giỏ hàng thành công");
+      } else {
+        openNotificationWithIcon(api, "error", "Thêm vào giỏ hàng thất bại", "Thêm vào giỏ hàng thất bại");
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error.response?.data || error.message);
+      openNotificationWithIcon(api, "error", "Thêm vào giỏ hàng thất bại", "Thêm vào giỏ hàng thất bại");
+    }
+  };
+
+  console.log(selectedVariant, "1111", quantity);
+  
 
   return (
     <div>
@@ -101,53 +193,29 @@ const ProductDetail = () => {
                         <div className="product-details-slider-area">
                           <div className="big-image-wrapper">
                             {/* Slider lớn */}
-                            <Slider
-                              {...bigImageSettings}
-                              className="big-image-slider"
-                              asNavFor={nav2} // Liên kết với slider nhỏ
-                              ref={(slider1) => setNav1(slider1)} // Gán tham chiếu slider lớn
-                            >
-                              <div className="single-image">
-                                <img src={big1} alt="" width={600} height={800} />
-                              </div>
-                              <div className="single-image">
-                                <img src={big2} alt="" width={600} height={800} />
-                              </div>
-                              <div className="single-image">
-                                <img src={big3} alt="" width={600} height={800} />
-                              </div>
-                              <div className="single-image">
-                                <img src={big4} alt="" width={600} height={800} />
-                              </div>
-                              <div className="single-image">
-                                <img src={big5} alt="" width={600} height={800} />
-                              </div>
-                            </Slider>
+                            {/* thêm điều kiện check lần đầu vào trang để hiện ảnh khi call api chưa có data */}
+                            {data?.image && data.image.length > 0 && (
+                              <Slider {...bigImageSettings} className="big-image-slider" asNavFor={nav2} ref={(slider1) => setNav1(slider1)}>
+                                {data.image.map((x, index) => (
+                                  <div className="single-image" key={index}>
+                                    <img src={`http://localhost:5555${x.img_url}`} alt="" width={600} height={800} style={{ objectFit: "contain" }} />
+                                  </div>
+                                ))}
+                              </Slider>
+                            )}
                           </div>
                           <div className="product-details-small-image-slider-wrapper">
                             {/* Slider nhỏ */}
-                            <Slider
-                              {...smallImageSettings}
-                              className="small-image-slider"
-                              asNavFor={nav1} // Liên kết với slider lớn
-                              ref={(slider2) => setNav2(slider2)} // Gán tham chiếu slider nhỏ
-                            >
-                              <div className="single-image">
-                                <img src={big1} alt="" width={170} height={226} />
-                              </div>
-                              <div className="single-image">
-                                <img src={big2} alt="" width={170} height={226} />
-                              </div>
-                              <div className="single-image">
-                                <img src={big3} alt="" width={170} height={226} />
-                              </div>
-                              <div className="single-image">
-                                <img src={big4} alt="" width={170} height={226} />
-                              </div>
-                              <div className="single-image">
-                                <img src={big5} alt="" width={170} height={226} />
-                              </div>
-                            </Slider>
+                            {/* thêm điều kiện check lần đầu vào trang để hiện ảnh khi call api chưa có data */}
+                            {data?.image && data.image.length > 0 && (
+                              <Slider {...smallImageSettings} className="small-image-slider" asNavFor={nav1} ref={(slider2) => setNav2(slider2)}>
+                                {data.image.map((x, index) => (
+                                  <div className="single-image" key={index}>
+                                    <img src={`http://localhost:5555${x.img_url}`} alt="" width={170} height={226} />
+                                  </div>
+                                ))}
+                              </Slider>
+                            )}
                           </div>
                         </div>
 
@@ -157,9 +225,9 @@ const ProductDetail = () => {
                         {/*=======  single product content description  =======*/}
                         <div className="single-product-content-description">
                           <p className="single-info">
-                            Brands <a href="shop-left-sidebar.html">Dolor</a>
+                            Brands <a>Dolor</a>
                           </p>
-                          <h4 className="product-title">Lorem ipsum dolor set amet decor</h4>
+                          <h4 className="product-title">{data?.name}</h4>
                           <div className="product-rating">
                             <span className="rating">
                               <i className="ion-android-star active" />
@@ -174,7 +242,8 @@ const ProductDetail = () => {
                             </span>
                           </div>
                           <p className="single-grid-product__price">
-                            <span className="discounted-price">$100.00</span> <span className="main-price discounted">$120.00</span>
+                            <span className="discounted-price">{data?.variants?.length > 0 && data?.variants[0]?.price}</span>{" "}
+                            <span className="main-price discounted">$120.00</span>
                           </p>
                           <p className="single-info">
                             Product Code: <span className="value">CODE123</span>{" "}
@@ -185,87 +254,67 @@ const ProductDetail = () => {
                           <p className="single-info">
                             Availability: <span className="value">In Stock</span>
                           </p>
-                          <p className="product-description">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. At, delectus. Voluptates omnis distinctio vitae quo quia veniam
-                            minima dolorem hic necessitatibus pariatur, quae fuga similique optio laboriosam assumenda voluptatum aperiam.
-                          </p>
+                          <p className="product-description">{data?.description}</p>
                           <div className="size mb-20">
-                            <span className="title"> Size:</span> <br />
-                            <select name="chooseSize" id="chooseSize" className="nice-select">
-                              <option value={0}>XXL</option>
-                              <option value={0}>L</option>
-                              <option value={0}>M</option>
-                              <option value={0}>S</option>
+                            <span className="title">Kích cỡ:</span> <br />
+                            <select name="chooseSize" id="chooseSize" className="nice-select" value={selectedSize} onChange={handleChangeSize}>
+                              {/* Lấy các kích thước không trùng lặp */}
+                              {[...new Set(data?.variants?.map((x) => x.size))].map((size, index) => (
+                                <option key={index} value={size}>
+                                  {size}
+                                </option>
+                              ))}
                             </select>
                           </div>
+
+                          {/* Hiển thị lựa chọn Color */}
                           <div className="color mb-20">
-                            <span className="title"> Color:</span> <br />
-                            <a href="#">
-                              <span className="color-block color-choice-1" />
-                            </a>
-                            <a href="#">
-                              <span className="color-block color-choice-2" />
-                            </a>
-                            <a href="#">
-                              <span className="color-block color-choice-3 active" />
-                            </a>
+                            <span className="title">Màu:</span> <br />
+                            {data?.variants
+                              ?.filter((x) => x.size === selectedSize) // Lọc theo size đã chọn
+                              .map((x, index) => (
+                                <a key={index} onClick={() => setSelectedColor(x.color)} className={x.color === selectedColor ? "active" : ""}>
+                                  <span className={`color-block color-choice-${x.color}`} />
+                                </a>
+                              ))}
                           </div>
-                          <div className="product-actions">
-                            <div className="quantity-selection">
-                              <label>Qty</label>
-                              <input type="number" defaultValue={1} min={1} />
+                          {selectedVariant && (
+                            <div className="product-actions">
+                              <div className="quantity-selection">
+                                <label>Số lượng</label>
+                                {/* Sử dụng value thay vì defaultValue để đảm bảo cập nhật số lượng đúng */}
+                                <input
+                                  type="number"
+                                  value={quantity ?? selectedVariant?.stock}
+                                  min={1}
+                                  max={selectedVariant.stock}
+                                  onChange={(e) => {
+                                    setSelectedVariant({ ...selectedVariant, stock: e.target.value });
+                                    setQuantity(Number(e.target.value))
+                                  }}
+                                />
+                              </div>
+                              <div className="product-buttons">
+                                <a className="cart-btn" onClick={() => handleAddCart()}>
+                                  <i className="ion-bag" /> Thêm giỏ hàng
+                                </a>
+                                {/* <span className="wishlist-compare-btn">
+                                  <a>
+                                    <i className="ion-heart" />
+                                  </a>
+                                  <a>
+                                    <i className="ion-android-options" />
+                                  </a>
+                                </span> */}
+                              </div>
                             </div>
-                            <div className="product-buttons">
-                              <a className="cart-btn" href="#">
-                                {" "}
-                                <i className="ion-bag" /> ADD TO CART
-                              </a>
-                              <span className="wishlist-compare-btn">
-                                <a>
-                                  {" "}
-                                  <i className="ion-heart" />
-                                </a>
-                                <a>
-                                  {" "}
-                                  <i className="ion-android-options" />
-                                </a>
-                              </span>
-                            </div>
-                          </div>
-                          <div className="social-share-buttons mt-20">
-                            <h5>share this product</h5>
-                            <ul>
-                              <li>
-                                <a className="twitter" href="#">
-                                  <i className="fa fa-twitter" />
-                                </a>
-                              </li>
-                              <li>
-                                <a className="facebook" href="#">
-                                  <i className="fa fa-facebook" />
-                                </a>
-                              </li>
-                              <li>
-                                <a className="google-plus" href="#">
-                                  <i className="fa fa-google-plus" />
-                                </a>
-                              </li>
-                              <li>
-                                <a className="pinterest" href="#">
-                                  <i className="fa fa-pinterest" />
-                                </a>
-                              </li>
-                            </ul>
-                          </div>
-                          <p className="single-info mb-0">
-                            Tags: <a href="shop-left-sidebar.html">Dolor</a>, <a href="shop-left-sidebar.html">Ipsum</a>,{" "}
-                            <a href="shop-left-sidebar.html">Lorem</a>{" "}
-                          </p>
+                          )}
                         </div>
                         {/*=======  End of single product content description  =======*/}
                       </div>
                     </div>
                   </div>
+
                   {/*=======  End of single product main content area  =======*/}
                   {/*=======  product description review   =======*/}
                   <div className="product-description-review-area">
@@ -281,7 +330,7 @@ const ProductDetail = () => {
                                 role="tab"
                                 aria-selected={activeTab === "description"}
                                 style={{ cursor: "pointer" }}>
-                                Description
+                                Mô tả
                               </a>
                               <a
                                 className={`nav-item nav-link ${activeTab === "review" ? "active" : ""}`}
@@ -289,7 +338,7 @@ const ProductDetail = () => {
                                 role="tab"
                                 aria-selected={activeTab === "review"}
                                 style={{ cursor: "pointer" }}>
-                                Reviews (1)
+                                Bình luận (1)
                               </a>
                             </div>
                           </nav>
@@ -299,20 +348,7 @@ const ProductDetail = () => {
                             {/* Description Tab */}
                             {activeTab === "description" && (
                               <div className="tab-pane fade show active">
-                                <div className="product-description">
-                                  <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam fringilla augue nec est tristique auctor. Donec non
-                                    est at libero vulputate rutrum. Morbi ornare lectus quis justo gravida semper. Nulla tellus mi, vulputate
-                                    adipiscing cursus eu, suscipit id nulla.
-                                  </p>
-                                  <p>
-                                    Pellentesque aliquet, sem eget laoreet ultrices, ipsum metus feugiat sem, quis fermentum turpis eros eget velit.
-                                    Donec ac tempus ante. Fusce ultricies massa massa. Fusce aliquam, purus eget sagittis vulputate, sapien libero
-                                    hendrerit est, sed commodo augue nisi non neque. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                                    tempor, lorem et placerat vestibulum, metus nisi posuere nisl, in accumsan elit odio quis mi. Cras neque metus,
-                                    consequat et blandit et, luctus a nunc. Etiam gravida vehicula tellus, in imperdiet ligula euismod eget.
-                                  </p>
-                                </div>
+                                <div className="product-description">{data?.description}</div>
                               </div>
                             )}
 
@@ -435,7 +471,7 @@ const ProductDetail = () => {
                       <div className="col-lg-12">
                         {/*=======  section title  =======*/}
                         <div className="section-title-wrapper text-center section-space--half">
-                          <h2 className="section-title">Related Products</h2>
+                          <h2 className="section-title">Sản phẩm liên quan</h2>
                           <p className="section-subtitle">
                             Mirum est notare quam littera gothica, quam nunc putamus parum claram anteposuerit litterarum formas.
                           </p>
@@ -446,60 +482,7 @@ const ProductDetail = () => {
                     <div className="row">
                       <div className="col-lg-12">
                         {/*=======  single row slider wrapper  =======*/}
-                        <div className="single-row-slider-wrapper">
-                          <Slider {...settings}>
-                            {[1, 2, 3, 4, 5].map((item) => (
-                              <div className="col" key={item}>
-                                <div className="single-grid-product">
-                                  <div className="single-grid-product__image">
-                                    <div className="single-grid-product__label">
-                                      <span className={item === 2 ? "sale" : "new"}>{item === 2 ? "-20%" : "New"}</span>
-                                    </div>
-                                    <a href="single-product.html">
-                                      <img width={600} height={800} src={`assets/img/products/${item}-600x800.webp`} className="img-fluid" alt="" />
-                                      <img width={600} height={800} src={`assets/img/products/${item}_1-600x800.webp`} className="img-fluid" alt="" />
-                                    </a>
-                                    <div className="hover-icons">
-                                      <a href="#">
-                                        <i className="ion-bag" />
-                                      </a>
-                                      <a href="#">
-                                        <i className="ion-heart" />
-                                      </a>
-                                      <a href="#">
-                                        <i className="ion-android-options" />
-                                      </a>
-                                      <a href="#" data-bs-toggle="modal" data-bs-target="#quick-view-modal-container">
-                                        <i className="ion-android-open" />
-                                      </a>
-                                    </div>
-                                  </div>
-                                  <div className="single-grid-product__content">
-                                    <div className="single-grid-product__category-rating">
-                                      <span className="category">
-                                        <a href="shop-left-sidebar.html">{item % 2 === 0 ? "Decor" : "Vase"}</a>
-                                      </span>
-                                      <span className="rating">
-                                        <i className="ion-android-star active" />
-                                        <i className="ion-android-star active" />
-                                        <i className="ion-android-star active" />
-                                        <i className="ion-android-star active" />
-                                        <i className="ion-android-star-outline" />
-                                      </span>
-                                    </div>
-                                    <h3 className="single-grid-product__title">
-                                      <a href="single-product.html">Cillum dolore lorem ipsum decoration item</a>
-                                    </h3>
-                                    <p className="single-grid-product__price">
-                                      <span className="discounted-price">${item * 20}.00</span>{" "}
-                                      <span className="main-price discounted">${item * 30}.00</span>
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </Slider>
-                        </div>
+                        <OurProducts />
                         {/*=======  End of single row slider wrapper  =======*/}
                       </div>
                     </div>

@@ -44,3 +44,38 @@
     box-sizing: border-box; /* Để padding không làm ảnh hưởng đến chiều rộng tổng */
   }
   
+  /* style product detail  */
+
+  .big-image-slider .single-image {
+    overflow: hidden; /* Để giới hạn kích thước của hình ảnh khi zoom */
+  }
+  
+  .big-image-slider .single-image img {
+    transition: transform 0.5s ease; /* Tạo hiệu ứng mượt khi zoom */
+  }
+  
+  .big-image-slider .single-image:hover img {
+    transform: scale(1.2); /* Zoom hình ảnh khi hover */
+  }
+  
+  .login-form .ant-input {
+    margin: 0;
+  }
+
+  /* style admin */
+  :where(.css-dev-only-do-not-override-vryruh).ant-layout-sider{
+    background: #fff;
+  }
+
+  :where(.css-dev-only-do-not-override-vryruh).ant-layout-sider .ant-layout-sider-trigger  {
+    background: #ebebeb;
+  }
+
+  :where(.css-dev-only-do-not-override-vryruh).ant-form-item {
+    margin-bottom: 16px;
+  }
+
+  .ant-input-number, .ant-picker, .ant-select {
+    max-width: 100%;
+    width: 100%;
+  }

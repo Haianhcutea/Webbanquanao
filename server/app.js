@@ -4,19 +4,50 @@ const connectDB = require('./config/database');
 const Route = require('./routes/route');
 const cors = require('cors');
 const path = require('path');
-
-require('dotenv').config();
+const bcrypt = require('bcryptjs');
+const User = require('./models/user');
+const localtunnel = require('localtunnel');
+const fs = require('fs');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const app = express();
 
 // Kết nối cơ sở dữ liệu MongoDB
-connectDB();
+connectDB()
+  .then(async () => {
+    console.log('Connected to MongoDB');
+    await initializeAdminUser();
+  })
+  .catch((error) => console.error('Could not connect to MongoDB:', error));
+
+// Hàm khởi tạo tài khoản admin
+async function initializeAdminUser() {
+  try {
+    const existingAdmin = await User.findOne({ email: 'admin@gmail.com' });
+    if (!existingAdmin) {
+      const adminUser = new User({
+        name: 'admin',
+        email: 'admin@gmail.com',
+        password: '123@123ab',
+        role: 'admin',
+        active: 'active',
+      });
+      await adminUser.save();
+      console.log('Admin user created successfully');
+    } else {
+      console.log('Admin user already exists');
+    }
+  } catch (error) {
+    console.error('Error initializing admin user:', error);
+  }
+}
 
 // Middleware
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: 'http://127.0.0.1:5173',
+    origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: [
       'Content-Type',
@@ -34,6 +65,27 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api', Route);
+
+(async () => {
+  const tunnel = await localtunnel({ port: 5555 });
+  console.log(`Tunnel URL: ${tunnel.url}`);
+
+  // Cập nhật giá trị CALLBACK_URL trong file .env
+  const newCallbackUrl = `${tunnel.url}/callback`;
+  let envConfig = fs.readFileSync('.env', 'utf8').split('\n');
+  const callbackIndex = envConfig.findIndex((line) => line.startsWith('CALLBACK_URL='));
+  if (callbackIndex !== -1) {
+    envConfig[callbackIndex] = `CALLBACK_URL=${newCallbackUrl}`;
+  } else {
+    envConfig.push(`CALLBACK_URL=${newCallbackUrl}`);
+  }
+  fs.writeFileSync('.env', envConfig.join('\n'));
+
+  // Ghi giá trị mới vào biến toàn cục
+  global.CALLBACK_URL = newCallbackUrl;
+  console.log(`CALLBACK_URL updated to: ${global.CALLBACK_URL}`);
+})();
+
 
 // Khởi động server
 const PORT = process.env.PORT || 5555;

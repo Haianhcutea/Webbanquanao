@@ -1,260 +1,479 @@
-import React from "react";
-
+import React, { useEffect } from "react";
 import Slider from "react-slick";
-import { Tabs } from "antd";
-//
-import products_3 from "@/assets/img/products/3-600x800.webp";
-import products_3_1 from "@/assets/img/products/3_1-600x800.webp";
 
-const OurProducts = () => {
-  const sliderSettings = {
-    slidesToShow: 4, // Hiển thị 4 slide cùng lúc
-    slidesToScroll: 1, // Di chuyển 1 slide mỗi lần cuộn
-    arrows: true, // Hiển thị mũi tên điều hướng
-    autoplay: false, // Không tự động chạy slide
-    autoplaySpeed: 5000, // Nếu autoplay: true, thời gian chờ giữa các lần cuộn là 5000ms
-    speed: 1000, // Tốc độ chuyển slide (1 giây)
-    infinite: false, // Không cuộn vô tận
+import "slick-carousel";
+import $ from "jquery";
+
+//
+import category_1 from "@/assets/img/category/img1-top-eposi1.webp";
+import category_2 from "@/assets/img/category/img2-top-eposi1.webp";
+import category_3 from "@/assets/img/category/img3-top-eposi1.webp";
+import category_4 from "@/assets/img/category/img4-top-eposi1.webp";
+//
+import banners_1 from "@/assets/img/banners/img1-middle-eposi1.webp";
+import banners_2 from "@/assets/img/banners/img2-middle-eposi1.webp";
+
+//
+import testimonial_1 from "@/assets/img/testimonial/testimor1-72x72.webp";
+import testimonial_2 from "@/assets/img/testimonial/testimor2-72x72.webp";
+import testimonial_3 from "@/assets/img/testimonial/testimor3-72x72.webp";
+import icon_testimonials from "@/assets/img/icons/icon_testimonials.webp";
+
+//
+import free_shipping from "@/assets/img/icons/free_shipping.webp";
+import money_back from "@/assets/img/icons/money_back.webp";
+import support247 from "@/assets/img/icons/support247.webp";
+
+//
+
+import OurProducts from "./OurProducts";
+import { useSelector } from "react-redux";
+
+const Home = () => {
+  const categories = useSelector((state) => state.category.listCategory);
+
+  const settings = {
+    dots: true, // Hiển thị dots
+    infinite: true, // Slide quay vòng
+    speed: 1000, // Tốc độ chuyển slide
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    fade: true, // Hiệu ứng chuyển mượt mà
+    arrows: true, // Hiển thị nút mũi tên
     prevArrow: (
-      <button className="slick-prev">
-        {" "}
-        <i className="ion-chevron-left" />{" "}
+      <button class="slick-next slick-arrow" style="">
+        <i class="ion-chevron-right"></i>
       </button>
-    ),
+    ), // Nút mũi tên trái
     nextArrow: (
-      <button className="slick-next">
-        {" "}
-        <i className="ion-chevron-right" />{" "}
+      <button class="slick-prev slick-arrow" style="">
+        <i class="ion-chevron-left"></i>
       </button>
-    ),
-    responsive: [
-      { breakpoint: 1501, settings: { slidesToShow: 4 } }, // Trên 1501px: 4 slide
-      { breakpoint: 1199, settings: { slidesToShow: 4, arrows: false } }, // Trên 1199px: 4 slide, không có mũi tên
-      { breakpoint: 991, settings: { slidesToShow: 3, arrows: false } }, // Trên 991px: 3 slide
-      { breakpoint: 767, settings: { slidesToShow: 2, arrows: false } }, // Trên 767px: 2 slide
-      { breakpoint: 575, settings: { slidesToShow: 2, arrows: false } }, // Trên 575px: 2 slide
-      { breakpoint: 479, settings: { slidesToShow: 1, arrows: false } }, // Dưới 479px: 1 slide
-    ],
+    ), // Nút mũi tên phải
   };
 
-  const items = [
-    {
-      key: "1",
-      label: "Decoration",
-      className: "nav-item nav-link",
-      children: (
-        <div className="single-row-slider-wrapper slider-gap--30">
-          <Slider {...sliderSettings}>
-            <div className="col">
-              {/* Single product */}
-              <div className="single-grid-product">
-                <div className="single-grid-product__image">
-                  <a href="single-product.html">
-                    <img width={600} height={800} src={products_3} className="img-fluid" alt="" />
-                    <img width={600} height={800} src={products_3_1} className="img-fluid" alt="" />
-                  </a>
-                  <div className="hover-icons">
-                    <a href="javascript:void(0)">
-                      <i className="ion-bag" />
-                    </a>
-                    <a href="javascript:void(0)">
-                      <i className="ion-heart" />
-                    </a>
-                    <a href="javascript:void(0)">
-                      <i className="ion-android-options" />
-                    </a>
-                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#quick-view-modal-container">
-                      <i className="ion-android-open" />
-                    </a>
+  // tạo slick kiểu khác
+  useEffect(() => {
+    setTimeout(() => {
+      // Khởi tạo Slider 1
+      $(".ht-slick-slider.slider-1").slick({
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: false,
+        autoplaySpeed: 5000,
+        speed: 1000,
+        infinite: true,
+        arrows: true,
+        prevArrow: "<button type='button' class='slick-prev'><i class='ion-ios-arrow-left'></i></button>",
+        nextArrow: "<button type='button' class='slick-next'><i class='ion-ios-arrow-right'></i></button>",
+        responsive: [
+          { breakpoint: 1501, settings: { slidesToShow: 1 } },
+          { breakpoint: 1199, settings: { slidesToShow: 1, arrows: false } },
+          { breakpoint: 991, settings: { slidesToShow: 1, arrows: false } },
+          { breakpoint: 767, settings: { slidesToShow: 1, arrows: false } },
+          { breakpoint: 575, settings: { slidesToShow: 1, arrows: false } },
+          { breakpoint: 479, settings: { slidesToShow: 1, arrows: false } },
+        ],
+      });
+
+      // Khởi tạo Slider 2
+      $(".ht-slick-slider.slider-2").slick({
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        arrows: false,
+        autoplay: false,
+        autoplaySpeed: 5000,
+        speed: 1000,
+        infinite: true,
+        responsive: [
+          { breakpoint: 1501, settings: { slidesToShow: 3 } },
+          { breakpoint: 1199, settings: { slidesToShow: 3 } },
+          { breakpoint: 991, settings: { slidesToShow: 2 } },
+          { breakpoint: 767, settings: { slidesToShow: 1 } },
+          { breakpoint: 575, settings: { slidesToShow: 1 } },
+          { breakpoint: 479, settings: { slidesToShow: 1 } },
+        ],
+      });
+    }, 0);
+  }, []);
+
+  return (
+    <div>
+      <div className="hero-slider-area section-space">
+        <div className="container wide">
+          <div className="row">
+            <div className="col-lg-12">
+              <div className="hero-slider-wrapper">
+                <Slider {...settings}>
+                  {/* Slide 1 */}
+                  <div className="single-slider-item">
+                    <div className="hero-slider-item-wrapper hero-slider-bg-1">
+                      <div className="container">
+                        <div className="row">
+                          <div className="col-lg-12">
+                            <div className="hero-slider-content hero-slider-content--left-space">
+                              <p className="slider-title slider-title--big-light">AMAZING PRODUCT!</p>
+                              <p className="slider-title slider-title--big-bold">WALL CLOCK</p>
+                              <p className="slider-title slider-title--small">
+                                Let your Wall reflect the luxurious side of you with our Unique Design 24ct.gold plated Wall Clock.
+                              </p>
+                              <a className="hero-slider-button" href="javascript:void(0)">
+                                <i className="ion-ios-plus-empty" /> SHOP NOW
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="single-grid-product__content">
-                  <div className="single-grid-product__category-rating">
-                    <span className="category">
-                      <a href="shop-left-sidebar.html">Furniture</a>
-                    </span>
-                    <span className="rating">
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star-outline" />
-                    </span>
+
+                  {/* Slide 2 */}
+                  <div className="single-slider-item">
+                    <div className="hero-slider-item-wrapper hero-slider-bg-2">
+                      <div className="container">
+                        <div className="row">
+                          <div className="col-lg-12">
+                            <div className="hero-slider-content hero-slider-content--left-space">
+                              <p className="slider-title slider-title--big-light">AMAZING PRODUCT!</p>
+                              <p className="slider-title slider-title--big-bold">DECOR CHAIR</p>
+                              <p className="slider-title slider-title--small">An elegant selection of chairs combining comfort & practicality.</p>
+                              <a className="hero-slider-button" href="javascript:void(0)">
+                                <i className="ion-ios-plus-empty" /> SHOP NOW
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="single-grid-product__title">
-                    <a href="single-product.html">Cillum dolore lorem ipsum decoration item</a>
-                  </h3>
-                  <p className="single-grid-product__price">
-                    <span className="main-price">$120.00</span>
-                  </p>
-                </div>
+
+                  {/* Slide 3 */}
+                  <div className="single-slider-item">
+                    <div className="hero-slider-item-wrapper hero-slider-bg-3">
+                      <div className="container">
+                        <div className="row">
+                          <div className="col-lg-12">
+                            <div className="hero-slider-content hero-slider-content--left-space">
+                              <p className="slider-title slider-title--big-light">WALNUT TIME SIGNAL</p>
+                              <p className="slider-title slider-title--big-bold">WALL CLOCK</p>
+                              <p className="slider-title slider-title--small">
+                                A striking centrepiece is conveyed through this Clock's integration with any modern style.
+                              </p>
+                              <a className="theme-button hero-slider-button" href="javascript:void(0)">
+                                <i className="ion-ios-plus-empty" /> SHOP NOW
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Slider>
               </div>
-              {/* End of single product */}
             </div>
-            <div className="col">
-              {/* Single product */}
-              <div className="single-grid-product">
-                <div className="single-grid-product__image">
-                  <a href="single-product.html">
-                    <img width={600} height={800} src={products_3} className="img-fluid" alt="" />
-                    <img width={600} height={800} src={products_3_1} className="img-fluid" alt="" />
-                  </a>
-                  <div className="hover-icons">
-                    <a href="javascript:void(0)">
-                      <i className="ion-bag" />
-                    </a>
-                    <a href="javascript:void(0)">
-                      <i className="ion-heart" />
-                    </a>
-                    <a href="javascript:void(0)">
-                      <i className="ion-android-options" />
-                    </a>
-                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#quick-view-modal-container">
-                      <i className="ion-android-open" />
-                    </a>
-                  </div>
-                </div>
-                <div className="single-grid-product__content">
-                  <div className="single-grid-product__category-rating">
-                    <span className="category">
-                      <a href="shop-left-sidebar.html">Furniture</a>
-                    </span>
-                    <span className="rating">
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star-outline" />
-                    </span>
-                  </div>
-                  <h3 className="single-grid-product__title">
-                    <a href="single-product.html">Cillum dolore lorem ipsum decoration item</a>
-                  </h3>
-                  <p className="single-grid-product__price">
-                    <span className="main-price">$120.00</span>
-                  </p>
-                </div>
-              </div>
-              {/* End of single product */}
-            </div>
-            <div className="col">
-              {/* Single product */}
-              <div className="single-grid-product">
-                <div className="single-grid-product__image">
-                  <a href="single-product.html">
-                    <img width={600} height={800} src={products_3} className="img-fluid" alt="" />
-                    <img width={600} height={800} src={products_3_1} className="img-fluid" alt="" />
-                  </a>
-                  <div className="hover-icons">
-                    <a href="javascript:void(0)">
-                      <i className="ion-bag" />
-                    </a>
-                    <a href="javascript:void(0)">
-                      <i className="ion-heart" />
-                    </a>
-                    <a href="javascript:void(0)">
-                      <i className="ion-android-options" />
-                    </a>
-                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#quick-view-modal-container">
-                      <i className="ion-android-open" />
-                    </a>
-                  </div>
-                </div>
-                <div className="single-grid-product__content">
-                  <div className="single-grid-product__category-rating">
-                    <span className="category">
-                      <a href="shop-left-sidebar.html">Furniture</a>
-                    </span>
-                    <span className="rating">
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star-outline" />
-                    </span>
-                  </div>
-                  <h3 className="single-grid-product__title">
-                    <a href="single-product.html">Cillum dolore lorem ipsum decoration item</a>
-                  </h3>
-                  <p className="single-grid-product__price">
-                    <span className="main-price">$120.00</span>
-                  </p>
-                </div>
-              </div>
-              {/* End of single product */}
-            </div>
-            <div className="col">
-              {/* Single product */}
-              <div className="single-grid-product">
-                <div className="single-grid-product__image">
-                  <a href="single-product.html">
-                    <img width={600} height={800} src={products_3} className="img-fluid" alt="" />
-                    <img width={600} height={800} src={products_3_1} className="img-fluid" alt="" />
-                  </a>
-                  <div className="hover-icons">
-                    <a href="javascript:void(0)">
-                      <i className="ion-bag" />
-                    </a>
-                    <a href="javascript:void(0)">
-                      <i className="ion-heart" />
-                    </a>
-                    <a href="javascript:void(0)">
-                      <i className="ion-android-options" />
-                    </a>
-                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#quick-view-modal-container">
-                      <i className="ion-android-open" />
-                    </a>
-                  </div>
-                </div>
-                <div className="single-grid-product__content">
-                  <div className="single-grid-product__category-rating">
-                    <span className="category">
-                      <a href="shop-left-sidebar.html">Furniture</a>
-                    </span>
-                    <span className="rating">
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star active" />
-                      <i className="ion-android-star-outline" />
-                    </span>
-                  </div>
-                  <h3 className="single-grid-product__title">
-                    <a href="single-product.html">Cillum dolore lorem ipsum decoration item</a>
-                  </h3>
-                  <p className="single-grid-product__price">
-                    <span className="main-price">$120.00</span>
-                  </p>
-                </div>
-              </div>
-              {/* End of single product */}
-            </div>
-          </Slider>
+          </div>
         </div>
-      ),
-    },
-    {
-      key: "2",
-      label: "Lighting",
-      className: "nav-item nav-link",
-      children: <></>,
-    },
-    {
-      key: "3",
-      label: "Storage",
-      className: "nav-item nav-link",
+      </div>
 
-      children: <></>,
-    },
-    {
-      key: "4",
-      label: "Living Room",
-      className: "nav-item nav-link",
+      <div className="category-area section-space">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-12">
+              {/*=======  category wrapper  =======*/}
+              <div className="category-wrapper">
+                <div className="row row-10 masonry-category-layout">
+                  <div className="col-lg-4 col-sm-6 grid-item">
+                    {/*=======  single category item  =======*/}
+                    <div className="single-category-item">
+                      <div className="single-category-item__image">
+                        <a href="javascript:void(0)">
+                          <img width={375} height={550} src={category_1} className="img-fluid" alt="" />
+                        </a>
+                      </div>
+                      <div className="single-category-item__content">
+                        <h3 className="title">Storage</h3>
+                        <a href="javascript:void(0)">
+                          Shop Now <i className="ion-android-arrow-dropright-circle" />
+                        </a>
+                      </div>
+                    </div>
+                    {/*=======  End of single category item  =======*/}
+                  </div>
+                  <div className="col-lg-4 col-sm-6 grid-item">
+                    {/*=======  single category item  =======*/}
+                    <div className="single-category-item">
+                      <div className="single-category-item__image">
+                        <a href="javascript:void(0)">
+                          <img width={380} height={265} src={category_2} className="img-fluid" alt="" />
+                        </a>
+                      </div>
+                      <div className="single-category-item__content">
+                        <h3 className="title">Lighting</h3>
+                        <a href="javascript:void(0)">
+                          Shop Now <i className="ion-android-arrow-dropright-circle" />
+                        </a>
+                      </div>
+                    </div>
+                    {/*=======  End of single category item  =======*/}
+                  </div>
+                  <div className="col-lg-4 col-sm-6 grid-item">
+                    {/*=======  single category item  =======*/}
+                    <div className="single-category-item">
+                      <div className="single-category-item__image">
+                        <a href="javascript:void(0)">
+                          <img src={category_3} className="img-fluid" alt="" />
+                        </a>
+                      </div>
+                      <div className="single-category-item__content">
+                        <h3 className="title">Decoration</h3>
+                        <a href="javascript:void(0)">
+                          Shop Now <i className="ion-android-arrow-dropright-circle" />
+                        </a>
+                      </div>
+                    </div>
+                    {/*=======  End of single category item  =======*/}
+                  </div>
+                  <div className="col-lg-4 col-sm-6 grid-item">
+                    {/*=======  single category item  =======*/}
+                    <div className="single-category-item">
+                      <div className="single-category-item__image">
+                        <a href="javascript:void(0)">
+                          <img width={380} height={265} src={category_4} className="img-fluid" alt="" />
+                        </a>
+                      </div>
+                      <div className="single-category-item__content">
+                        <h3 className="title">Living Room</h3>
+                        <a href="javascript:void(0)">
+                          Shop Now <i className="ion-android-arrow-dropright-circle" />
+                        </a>
+                      </div>
+                    </div>
+                    {/*=======  End of single category item  =======*/}
+                  </div>
+                </div>
+              </div>
+              {/*=======  End of category wrapper  =======*/}
+            </div>
+          </div>
+        </div>
+      </div>
 
-      children: <></>,
-    },
-  ];
-  return <Tabs items={items}></Tabs>;
+      <div className="single-row-slider-tab-area section-space">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-12">
+              {/*=======  section title  =======*/}
+              <div className="section-title-wrapper text-center section-space--half">
+                <h2 className="section-title">Sản phẩm của tôi</h2>
+                <p className="section-subtitle">
+                  Mirum est notare quam littera gothica, quam nunc putamus parum claram anteposuerit litterarum formas.
+                </p>
+              </div>
+              {/*=======  End of section title  =======*/}
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-lg-12">
+              {/*=======  tab slider wrapper  =======*/}
+              <div className="tab-slider-wrapper">
+                <div className="tab-product-navigation">
+                  <OurProducts />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="testimonial-area section-space">
+        <div className="container wide">
+          <div className="row">
+            <div className="col-lg-12">
+              <div className="full-testimonial-wrapper testimonial-bg">
+                <div className="container">
+                  <div className="row">
+                    <div className="col-lg-12">
+                      <div className="testimonial-wrapper section-space--inner">
+                        <div className="ht-slick-slider slider-1">
+                          {/*=======  single testimonial item  =======*/}
+                          {[
+                            {
+                              image: testimonial_1,
+                              text: "Sed vel urna at dui iaculis gravida. Maecenas pretium, velit vitae placerat faucibus, velit quam facilisis elit, sit amet lacinia est est id ligula.",
+                              author: "Magdalena Valencia",
+                            },
+                            {
+                              image: testimonial_2,
+                              text: "Sed vel urna at dui iaculis gravida. Maecenas pretium, velit vitae placerat faucibus, velit quam facilisis elit, sit amet lacinia est est id ligula.",
+                              author: "Magdalena Valencia",
+                            },
+                            {
+                              image: testimonial_3,
+                              text: "Sed vel urna at dui iaculis gravida. Maecenas pretium, velit vitae placerat faucibus, velit quam facilisis elit, sit amet lacinia est est id ligula.",
+                              author: "Magdalena Valencia",
+                            },
+                          ].map((testimonial, index) => (
+                            <div className="single-testimonial-item row" key={index}>
+                              <div className="col-lg-8 mx-auto">
+                                <div className="single-testimonial-item__image">
+                                  <img width={72} height={72} src={testimonial.image} className="img-fluid" alt="" />
+                                </div>
+                                <div className="single-testimonial-item__content">
+                                  <p className="testimonial-text">{testimonial.text}</p>
+                                  <img width={29} height={22} src={icon_testimonials} alt="" />
+                                  <p className="testimonial-author">{testimonial.author}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          {/*=======  End of single testimonial item  =======*/}
+                        </div>
+                      </div>
+                      {/*=======  End of testimonial wrapper  =======*/}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="single-row-slider-tab-area section-space">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-12">
+              {/*=======  section title  =======*/}
+              <div className="section-title-wrapper text-center section-space--half">
+                <h2 className="section-title">Sản phẩm mới nhất</h2>
+                <p className="section-subtitle">
+                  Mirum est notare quam littera gothica, quam nunc putamus parum claram anteposuerit litterarum formas.
+                </p>
+              </div>
+              {/*=======  End of section title  =======*/}
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-lg-12">
+              {/*=======  tab slider wrapper  =======*/}
+              <div className="tab-slider-wrapper">
+                <div className="tab-product-navigation">
+                  <OurProducts />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="banner-hover-area section-space">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-12">
+              {/*=======  banner hover wrapper  =======*/}
+              <div className="banner-hover-wrapper">
+                <div className="row">
+                  <div className="col-md-6">
+                    {/*=======  single hover banner  =======*/}
+                    <div className="single-hover-banner">
+                      <div className="single-hover-banner__image">
+                        <a href="javascript:void(0)">
+                          <img width={570} height={319} src={banners_1} className="img-fluid" alt="" />
+                        </a>
+                        <div className="single-hover-banner__content">
+                          <h4 className="small-text">Black Friday</h4>
+                          <h3 className="big-text">Save Up To 50% Off</h3>
+                          <a className="banner-link" href="javascript:void(0)">
+                            SHOP NOW
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    {/*=======  End of single hover banner  =======*/}
+                  </div>
+                  <div className="col-md-6">
+                    {/*=======  single hover banner  =======*/}
+                    <div className="single-hover-banner">
+                      <div className="single-hover-banner__image">
+                        <a href="javascript:void(0)">
+                          <img width={570} height={319} src={banners_2} className="img-fluid" alt="" />
+                        </a>
+                        <div className="single-hover-banner__content">
+                          <h4 className="small-text">Best Selling !</h4>
+                          <h3 className="big-text">Living Room Up To 70% Off</h3>
+                          <a className="banner-link" href="javascript:void(0)">
+                            SHOP NOW
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    {/*=======  End of single hover banner  =======*/}
+                  </div>
+                </div>
+              </div>
+              {/*=======  End of banner hover wrapper  =======*/}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="feature-logo-area">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-12">
+              {/*=======  feature logo wrapper  =======*/}
+              <div className="feature-logo-wrapper section-space--inner-bottom">
+                <div className="row">
+                  <div className="col-md-4">
+                    {/*=======  single feature logo  =======*/}
+                    <div className="single-feature-logo">
+                      <div className="single-feature-logo__image">
+                        <img width={51} height={52} src={free_shipping} className="img-fluid" alt="" />
+                      </div>
+                      <div className="single-feature-logo__content">
+                        <h4 className="title">FREE SHIPPING WORLDWIDE</h4>
+                        <p className="short-desc">We offer free shipping via Standard Shipping on orders over $200.00</p>
+                      </div>
+                    </div>
+                    {/*=======  End of single feature logo  =======*/}
+                  </div>
+                  <div className="col-md-4">
+                    {/*=======  single feature logo  =======*/}
+                    <div className="single-feature-logo">
+                      <div className="single-feature-logo__image">
+                        <img width={52} height={52} src={money_back} className="img-fluid" alt="" />
+                      </div>
+                      <div className="single-feature-logo__content">
+                        <h4 className="title">MONEY BACK GUARANTEE</h4>
+                        <p className="short-desc">If you're not satisfied with our product, we'll refund the purchase price*.</p>
+                      </div>
+                    </div>
+                    {/*=======  End of single feature logo  =======*/}
+                  </div>
+                  <div className="col-md-4">
+                    {/*=======  single feature logo  =======*/}
+                    <div className="single-feature-logo">
+                      <div className="single-feature-logo__image">
+                        <img width={41} height={53} src={support247} className="img-fluid" alt="" />
+                      </div>
+                      <div className="single-feature-logo__content">
+                        <h4 className="title">ONLINE SUPPORT 24/7</h4>
+                        <p className="short-desc">Our friendly support team is available to help you 24 hours a day, seven days a week</p>
+                      </div>
+                    </div>
+                    {/*=======  End of single feature logo  =======*/}
+                  </div>
+                </div>
+              </div>
+              {/*=======  End of feature logo wrapper  =======*/}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default OurProducts;
+export default Home;
